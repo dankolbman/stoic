@@ -17,15 +17,18 @@ def status():
 
 @api.route('/points', methods=['GET'])
 def points():
-    points = []
-    # TODO: limit and offset of query should be inputs
-    for pt in Point.query.limit(1000).all():
-        points.append(json.loads(
-            db.session.scalar(pt.geom.ST_AsGeoJSON())))
-    return jsonify({'points': points})
+    ''' Retrieves points '''
+    start = request.args.get('start', 1, type=int)
+    size = min(request.args.get('size', 10, type=int), 1000)
+    results = Point.query.offset(start).limit(size).all()
+    total = Point.query.count()
+
+    return jsonify({'points': [point.to_json() for point in results],
+                    'count': total})
 
 @api.route('/points', methods=['POST'])
 def new_points():
+    ''' Posts points and inserts to the database '''
     points = request.json
     # Validate
     if 'points' not in points and points['points'] is list:

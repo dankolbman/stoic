@@ -28,24 +28,28 @@ def status():
 def points():
     ''' Retrieves points '''
     as_html = request.args.get('as_html', False, type=bool)
-    start = request.args.get('start', 1, type=int)
+    start = request.args.get('start', 0, type=int)
     size = min(request.args.get('size', 10, type=int), 1000)
     results = Point.query.offset(start).limit(size).all()
     total = Point.query.count()
 
-    # Return as html so we can see the browser profiler/code highligting
-    if current_app.debug or as_html:
-        data = json.dumps({'points': [point.to_json() for point in results], 'count': total},
-                          default=json_serial, indent=4,  separators=(',', ': '))
+    data = {'points': [point.to_json() for point in results], 'count': total}
+    # Only return json if request was for json
+    if not as_html:
+        return jsonify(data)
+    # Otherwise, return html so we can see the browser profiler/code highligting
+    else:
+        data = json.dumps(data, default=json_serial,
+                          indent=4,  separators=(',', ': '))
         return render_template('json.html', data=data)
-
-    return jsonify({'points': [point.to_json() for point in results],
-                    'count': total})
 
 @api.route('/points', methods=['POST'])
 def new_points():
     ''' Posts points and inserts to the database '''
     points = request.json
+    if not points:
+        return jsonify({'status': 201, 'message': 'no points posted'}), 400
+
     # Validate
     if 'points' not in points and points['points'] is list:
         return jsonify({'status': 400,

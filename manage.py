@@ -11,6 +11,7 @@ if os.path.exists('.env'):
 from app import create_app, db
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
+from app.model import Point
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -18,8 +19,7 @@ migrate = Migrate(app, db)
 
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,
-                Permission=Permission, Post=Post, Comment=Comment)
+    return dict(app=app, db=db, Point=Point)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
@@ -33,10 +33,20 @@ def test(coverage=False):
 
 
 @manager.command
+def random_points(n=1):
+    """Inserts n random points into the db"""
+    from app.model import Point
+    from random import random
+    for i in range(n):
+        pt = Point(accuracy=25.0, geom='POINT({} {})'.format(
+                        random()*90.0, random()*360.0-180.0))
+        db.session.add(pt)
+    db.session.commit()
+
+@manager.command
 def deploy():
     """Run deployment tasks."""
     from flask.ext.migrate import upgrade
-    from app.models import Role, User
 
     # migrate database to latest revision
     upgrade()

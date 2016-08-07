@@ -21,3 +21,21 @@ CREATE EXTENSION postgis;
 -- Enable Topology
 CREATE EXTENSION postgis_topology;
 ```
+
+The database can be initialized with:
+```bash
+./manage db init
+```
+
+Running
+-------
+
+Run a local server:
+```bash
+./manage runserver
+```
+
+Run tests
+```bash
+./manage test
+```

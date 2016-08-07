@@ -37,12 +37,20 @@ class APITestCase(unittest.TestCase):
 
     def test_points(self):
         ''' test points endpoint '''
+        point = Point(geom=Point.point_geom([ 41.839344, -87.682321 ]), accuracy=10.0)
+        db.session.add(point)
+        db.session.commit()
         response = self.client.get(url_for('api.points'))
         # check response
-        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.status_code, 200)
         # check content of json response status
         json_response = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(json_response, {'points':[], 'count': 0})
+        self.assertEqual(json_response['count'], 1)
+        self.assertEqual(json_response['count'], len(json_response['points']))
+
+        response = self.client.get(url_for('api.points'),
+                                            query_string=dict(as_html=True))
+        self.assertTrue('<html>' in str(response.data))
 
     def test_pagination(self):
         ''' test pagination of points '''

@@ -28,7 +28,7 @@ class ModelTestCase(unittest.TestCase):
         lon = -87.684722
         point = Point(timestamp=dt,
                       accuracy=25.0,
-                      geom='POINT({0} {1})'.format(lat, lon))
+                      geom=Point.point_geom([lat, lon]))
 
         self.assertEqual(point.to_json()['id'], None )
         self.assertEqual(point.to_json()['timestamp'], dt )
@@ -40,3 +40,17 @@ class ModelTestCase(unittest.TestCase):
         # Make sure the postgis geojson matches object's to_json()
         self.assertDictEqual(point.to_json()['geometry'],
                     json.loads(db.session.scalar(func.ST_AsGeoJSON(point.geom))))
+        db.session.delete(point)
+
+        point_json = { 'coordinates': [lat, lon],
+                        'accuracy': 15.0 }
+
+        point = Point.from_json(point_json)
+        self.assertEqual(point.accuracy, 15.0)
+        self.assertEqual(point.timestamp, None)
+        self.assertEqual(point.geom, Point.point_geom(point_json['coordinates']))
+        db.session.add(point)
+        self.assertEqual(Point.query.count(), 1)
+        self.assertDictEqual(point.to_json()['geometry'],
+                    json.loads(db.session.scalar(func.ST_AsGeoJSON(point.geom))))
+

@@ -1,4 +1,4 @@
-Traveled
+Stoic
 ========
 
 A Travel Blahg remake

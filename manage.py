@@ -32,16 +32,38 @@ def test(coverage=False):
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
-@manager.command
-def random_points(n=1):
+@manager.option('-n', '--npoints', help='Number of points')
+def random_points(npoints=1):
     """Inserts n random points into the db"""
     from app.model import Point
     from random import random
-    for i in range(n):
+    for i in range(npoints):
         pt = Point(accuracy=25.0, geom='POINT({} {})'.format(
                         random()*90.0, random()*360.0-180.0))
         db.session.add(pt)
     db.session.commit()
+
+
+@manager.option('-f', '--filepath', help='File to load points from')
+def load_points(filepath):
+    ''' Load points from file and insert into db '''
+    from datetime import datetime
+    with open(filepath, 'r') as f:
+        for row in f:
+            line = row.split(',')
+            try:
+                dt = datetime.strptime(line[0], '%Y-%m-%d %H:%M:%S.%f')
+            except:
+                dt = datetime.strptime(line[0], '%Y-%m-%d %H:%M:%S')
+            acc = float(line[1])
+            lat = float(line[3])
+            lon = float(line[2])
+            pt = Point(timestamp=dt,
+                       accuracy=acc,
+                       geom=Point.point_geom([lat,lon]))
+            db.session.add(pt)
+    db.session.commit()
+
 
 @manager.command
 def deploy():

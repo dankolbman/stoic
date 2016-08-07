@@ -1,5 +1,7 @@
 Stoic
 ========
+[![Build Status](https://travis-ci.org/dankolbman/stoic.svg?branch=master)](https://travis-ci.org/dankolbman/stoic)
+[![Coverage Status](https://coveralls.io/repos/github/dankolbman/stoic/badge.svg)](https://coveralls.io/github/dankolbman/stoic)
 
 A Travel Blahg remake
 

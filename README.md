@@ -26,7 +26,9 @@ CREATE EXTENSION postgis_topology;
 
 The database can be initialized with:
 ```bash
-./manage db init
+$ ./manage db init
+$ ./manage.py shell
+>>> db.create_all()
 ```
 
 Running
@@ -34,10 +36,10 @@ Running
 
 Run a local server:
 ```bash
-./manage runserver
+$ ./manage runserver
 ```
 
 Run tests
 ```bash
-./manage test
+$ ./manage test
 ```

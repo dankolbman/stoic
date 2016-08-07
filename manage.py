@@ -37,7 +37,7 @@ def random_points(npoints=1):
     """Inserts n random points into the db"""
     from app.model import Point
     from random import random
-    for i in range(npoints):
+    for i in range(int(npoints)):
         pt = Point(accuracy=25.0, geom='POINT({} {})'.format(
                         random()*90.0, random()*360.0-180.0))
         db.session.add(pt)

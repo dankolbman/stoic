@@ -1,8 +1,10 @@
 from datetime import datetime
 import json
-from flask import jsonify
+from flask import jsonify, current_app
 from . import db
 from geoalchemy2 import Geometry
+from geoalchemy2.shape import to_shape
+from shapely.geometry.geo import mapping
 import geoalchemy2.functions as func
 
 
@@ -15,7 +17,7 @@ class Point(db.Model):
 
     def to_json(self):
         ''' Returns geojson representation of the point '''
-        geom = json.loads(db.session.scalar(func.ST_AsGeoJSON(self.geom)))
+        geom = mapping(to_shape(self.geom))
         pt_json = {
                     'id': self.id,
                     'timestamp': self.timestamp,

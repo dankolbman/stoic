@@ -3,6 +3,8 @@ import json
 from flask import current_app, url_for
 from app import create_app, db
 
+from app.model import Point
+
 
 class APITestCase(unittest.TestCase):
     def setUp(self):
@@ -40,7 +42,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         # Check content of json response status
         json_response = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(json_response, '')
+        self.assertEqual(json_response, {'points':[]})
 
     def test_single_point_submission(self):
         ''' Test submission of single point '''
@@ -52,15 +54,14 @@ class APITestCase(unittest.TestCase):
 
         response = self.client.post(
                     url_for('api.points'),
-                    headers=self._api_headers(data=json.dumps(pt_json)))
+                    headers=self._api_headers(),
+                    data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(json_response['message'], 'uploaded 1 points')
         self.assertEqual(Point.query.count(), 1)
         point = Point.query.first()
-        self.assertTrue(point.timestamp > 0)
         self.assertEqual(point.accuracy, 100.0)
-        self.assertEqual(point.geom, 'POINT(41.836944, -87.684722)')
 
     def test_many_point_submission(self):
         ''' Test submission of many points '''
@@ -76,13 +77,12 @@ class APITestCase(unittest.TestCase):
                     }
 
         response = self.client.post(
-                    url_for('api.points'),
-                    headers=self._api_headers(data=json.dumps(pt_json)))
+                    url_for('api.new_points'),
+                    headers=self._api_headers(),
+                    data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(json_response['message'], 'uploaded 5 points')
         self.assertEqual(Point.query.count(), 5)
         point = Point.query.first()
-        self.assertTrue(point.timestamp > 0)
         self.assertEqual(point.accuracy, 10.0)
-        self.assertEqual(point.geom, 'POINT(41.839344, -87.682322)')

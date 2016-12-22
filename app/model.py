@@ -11,12 +11,13 @@ import geoalchemy2.functions as func
 class Point(db.Model):
     __tablename__ = "point"
     id = db.Column(db.Integer, primary_key=True)
+    trip = db.Column(db.String, primary_key=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
     accuracy = db.Column(db.Float, default=100.0, nullable=False)
     geom = db.Column(Geometry(geometry_type='POINT'))
 
     def to_json(self):
-        ''' Returns geojson representation of the point '''
+        ''' Returns json representation of the point '''
         geom = mapping(to_shape(self.geom))
         pt_json = {
                     'id': self.id,
@@ -27,13 +28,16 @@ class Point(db.Model):
         return pt_json
 
     @staticmethod
-    def from_json(point_json):
+    def from_json(point_json, trip='default'):
         ''' Creates a new point from a json object '''
         defaults = {'accuracy': None, 'timestamp': None}
         defaults.update(point_json)
-        return Point(geom=Point.point_geom(point_json['coordinates']),
+        latlon = [ point_json['longitude'], point_json['latitude'] ]
+        ts = datetime.utcfromtimestamp(defaults['timestamp']/1000)
+        return Point(geom=Point.point_geom(latlon),
                      accuracy=defaults['accuracy'],
-                     timestamp=defaults['timestamp'])
+                     timestamp=ts,
+                     trip=trip)
 
     @staticmethod
     def point_geom(coords):

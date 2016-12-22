@@ -43,8 +43,8 @@ def points():
                           indent=4,  separators=(',', ': '))
         return render_template('json.html', data=data)
 
-@api.route('/points', methods=['POST'])
-def new_points():
+@api.route('/<string:trip>/<string:api_key>/pings', methods=['POST'])
+def upload_points(trip, api_key):
     ''' Posts points and inserts to the database '''
     points = request.json
     if not points:
@@ -54,10 +54,12 @@ def new_points():
     if 'points' not in points and points['points'] is list:
         return jsonify({'status': 400,
                         'message': 'Missing points list in posted json'}), 400
+
     points = points['points']
     for point in points:
-        p = Point.from_json(point)
+        p = Point.from_json(point, trip=trip)
         db.session.add(p)
     db.session.commit()
+    print 'uploaded {} points'.format(len(points))
     return jsonify({'status': 201,
                     'message': 'uploaded {} points'.format(len(points))}), 201

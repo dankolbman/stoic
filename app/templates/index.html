@@ -9,25 +9,43 @@
 	<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css' rel='stylesheet' />
 	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/geo-viewport/v0.1.1/geo-viewport.js'></script>
 	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js'></script>
+    <link href="https://v4-alpha.getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
+		.bg-inverse { background-color: #b0050b !important; }
+		.navbar-text { color: rgba(255,255,255,0.9);
+}
     </style>
 </head>
 <body>
+<nav class="navbar navbar-full navbar-dark bg-inverse">
+  <div class="container">
+  <a class="navbar-brand" href="#">Dan in: <i>The UK, 2016</i></a>
+  <ul class="nav navbar-nav float-xs-right">
+ 	<li class="nav-item text-muted">
+	  <span class="navbar-text">Other trips</span>
+  	</li>
+    <li class="nav-item">
+      <a class="nav-link" href="http://dankolbman.xyz">SE Asia 2015</a>
+    </li>
+  </ul>
+  </div>
+</nav>
 
-<div id='map'></div>
+<div id='map'>
+
 <script>
 L.mapbox.accessToken = 'pk.eyJ1IjoiZGFuazUyOCIsImEiOiJzOVp0TzJnIn0.1c8obLmcPHN4LosoNan8DQ';
 var geojsonMarkerOptions = {
     radius: 3,
-    fillColor: "#ff4444",
+    fillColor: "b0050b",
     color: "#000",
     weight: 1,
     opacity: 0.0,
     fillOpacity: 0.7
 };
-var map = L.mapbox.map('map', 'mapbox.streets').setView([15.0, 104], 5);
+var map = L.mapbox.map('map', 'mapbox.light').setView([51.507222, -0.12], 5);
 L.geoJson({{ geo_json | safe }}, {
   pointToLayer: function (feature, latlng) {
       return L.circleMarker(latlng, geojsonMarkerOptions);

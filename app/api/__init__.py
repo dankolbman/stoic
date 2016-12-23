@@ -60,6 +60,6 @@ def upload_points(trip, api_key):
         p = Point.from_json(point, trip=trip)
         db.session.add(p)
     db.session.commit()
-    print 'uploaded {} points'.format(len(points))
+    print('uploaded {} points'.format(len(points)))
     return jsonify({'status': 201,
                     'message': 'uploaded {} points'.format(len(points))}), 201

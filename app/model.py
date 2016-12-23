@@ -25,19 +25,21 @@ class Point(db.Model):
                     'accuracy': self.accuracy,
                     'geometry': geom
                 }
+
+        pt_json['geometry']['coordinates'] = list(pt_json['geometry']['coordinates'])
         return pt_json
 
     @staticmethod
     def from_json(point_json, trip='default'):
         ''' Creates a new point from a json object '''
-        defaults = {'accuracy': None, 'timestamp': None}
+        defaults = {'accuracy': None, 'timestamp': 0, 'trip': trip}
         defaults.update(point_json)
         latlon = [ point_json['longitude'], point_json['latitude'] ]
         ts = datetime.utcfromtimestamp(defaults['timestamp']/1000)
         return Point(geom=Point.point_geom(latlon),
                      accuracy=defaults['accuracy'],
                      timestamp=ts,
-                     trip=trip)
+                     trip=defaults['trip'])
 
     @staticmethod
     def point_geom(coords):

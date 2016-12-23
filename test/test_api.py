@@ -37,7 +37,7 @@ class APITestCase(unittest.TestCase):
 
     def test_points(self):
         ''' test points endpoint '''
-        point = Point(geom=Point.point_geom([ 41.839344, -87.682321 ]), accuracy=10.0)
+        point = Point(geom=Point.point_geom([ -87.682321, 41.839344 ]), accuracy=10.0, trip='test')
         db.session.add(point)
         db.session.commit()
         response = self.client.get(url_for('api.points'))
@@ -57,24 +57,37 @@ class APITestCase(unittest.TestCase):
         # add a bunch of points
         pt_json = {
                         'points': [
-                            { 'coordinates': [ 41.839344, -87.682321 ] },
-                            { 'coordinates': [ 41.839344, -87.682321 ] },
-                            { 'coordinates': [ 41.839344, -87.682321 ] },
-                            { 'coordinates': [ 41.839344, -87.682321 ] },
-                            { 'coordinates': [ 41.833244, -87.694221 ] },
-                            { 'coordinates': [ 41.837244, -87.682421 ] },
-                            { 'coordinates': [ 41.836844, -87.689322 ] },
-                            { 'coordinates': [ 41.836344, -87.681422 ] },
-                            { 'coordinates': [ 41.839334, -87.682382 ] },
-                            { 'coordinates': [ 41.833234, -87.694282 ] },
-                            { 'coordinates': [ 41.837234, -87.682482 ] },
-                            { 'coordinates': [ 41.836834, -87.689382 ] },
-                            { 'coordinates': [ 41.836334, -87.681482 ] },
+                            { 'latitude':  -87.682321,
+                              'longitude': 41.839344, },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
+                            { 'latitude': -87.682321,
+                              'longitude': 41.839344 },
                         ]
                     }
         # post points through api
         response = self.client.post(
-                    url_for('api.new_points'),
+                    url_for('api.upload_points', trip='test', api_key='123'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         # get the points
@@ -98,12 +111,13 @@ class APITestCase(unittest.TestCase):
         ''' test submission of single point '''
         pt_json = {
                         'points': [
-                            { 'coordinates': [ 41.836944, -87.684722 ] }
+                            { 'latitude': -87.684722,
+                              'longitude': 41.836944 }
                         ]
                     }
 
         response = self.client.post(
-                    url_for('api.points'),
+                    url_for('api.upload_points', trip='test', api_key='123'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -117,17 +131,22 @@ class APITestCase(unittest.TestCase):
         ''' test submission of many points '''
         pt_json = {
                         'points': [
-                            { 'coordinates': [ 41.839344, -87.682322 ],
+                            { 'latitude': -87.682322,
+                              'longitude': 41.839344,
                               'accuracy': 10.0 },
-                            { 'coordinates': [ 41.833244, -87.694222 ] },
-                            { 'coordinates': [ 41.837244, -87.682422 ] },
-                            { 'coordinates': [ 41.836844, -87.689322 ] },
-                            { 'coordinates': [ 41.836344, -87.681422 ] },
+                            { 'latitude': -87.682322,
+                              'longitude': 41.839344, },
+                            { 'latitude': -87.682322,
+                              'longitude': 41.839344, },
+                            { 'latitude': -87.682322,
+                              'longitude': 41.839344, },
+                            { 'latitude': -87.682322,
+                              'longitude': 41.839344, },
                         ]
                     }
 
         response = self.client.post(
-                    url_for('api.new_points'),
+                    url_for('api.upload_points', trip='test', api_key='123'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))

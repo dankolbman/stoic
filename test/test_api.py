@@ -26,7 +26,7 @@ class APITestCase(unittest.TestCase):
         }
 
     def test_status(self):
-        ''' Check that the api status is returning 200 '''
+        """ Check that the api status is returning 200 """
         response = self.client.get(url_for('api.status'))
         # Check response
         self.assertTrue(response.status_code == 200)
@@ -36,7 +36,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(json_response['version'] == '1.0')
 
     def test_points(self):
-        ''' test points endpoint '''
+        """ test points endpoint """
         point = Point(geom=Point.point_geom([ -87.682321, 41.839344 ]), accuracy=10.0, trip='test')
         db.session.add(point)
         db.session.commit()
@@ -53,7 +53,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue('<html>' in str(response.data))
 
     def test_pagination(self):
-        ''' test pagination of points '''
+        """ test pagination of points """
         # add a bunch of points
         pt_json = {
                         'points': [
@@ -108,7 +108,7 @@ class APITestCase(unittest.TestCase):
 
 
     def test_single_point_submission(self):
-        ''' test submission of single point '''
+        """ test submission of single point """
         pt_json = {
                         'points': [
                             { 'latitude': -87.684722,
@@ -128,7 +128,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(point.accuracy, 100.0)
 
     def test_many_point_submission(self):
-        ''' test submission of many points '''
+        """ test submission of many points """
         pt_json = {
                         'points': [
                             { 'latitude': -87.682322,

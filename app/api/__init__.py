@@ -26,7 +26,7 @@ def status():
 
 @api.route('/points', methods=['GET'])
 def points():
-    ''' Retrieves points '''
+    """ Retrieves points """
     as_html = request.args.get('as_html', False, type=bool)
     start = request.args.get('start', 0, type=int)
     size = min(request.args.get('size', 10, type=int), 1000)
@@ -45,7 +45,7 @@ def points():
 
 @api.route('/<string:trip>/<string:api_key>/pings', methods=['POST'])
 def upload_points(trip, api_key):
-    ''' Posts points and inserts to the database '''
+    """ Posts points and inserts to the database """
     points = request.json
     if not points:
         return jsonify({'status': 201, 'message': 'no points posted'}), 400

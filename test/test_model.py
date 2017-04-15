@@ -22,7 +22,7 @@ class ModelTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_point(self):
-        ''' Check point model '''
+        """ Check point model """
         dt = datetime.utcnow()
         lat = 41.836944
         lon = -87.684722

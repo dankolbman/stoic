@@ -17,7 +17,7 @@ class Point(db.Model):
     geom = db.Column(Geometry(geometry_type='POINT'))
 
     def to_json(self):
-        ''' Returns json representation of the point '''
+        """ Returns json representation of the point """
         geom = mapping(to_shape(self.geom))
         pt_json = {
                     'id': self.id,
@@ -31,7 +31,7 @@ class Point(db.Model):
 
     @staticmethod
     def from_json(point_json, trip='default'):
-        ''' Creates a new point from a json object '''
+        """ Creates a new point from a json object """
         defaults = {'accuracy': None, 'timestamp': 0, 'trip': trip}
         defaults.update(point_json)
         latlon = [ point_json['longitude'], point_json['latitude'] ]
@@ -43,7 +43,7 @@ class Point(db.Model):
 
     @staticmethod
     def point_geom(coords):
-        ''' Converts list of lat, lon to POINT geometry format '''
+        """ Converts list of lat, lon to POINT geometry format """
         return 'POINT({} {})'.format(coords[0], coords[1])
 
     def __repr__(self):

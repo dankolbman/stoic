@@ -29,9 +29,10 @@ def points():
     """ Retrieves points """
     as_html = request.args.get('as_html', False, type=bool)
     start = request.args.get('start', 0, type=int)
+    start_dt = datetime.utcfromtimestamp(start)
     size = min(request.args.get('size', 10, type=int), 1000)
-    results = Point.query.offset(start).limit(size).all()
-    total = Point.query.count()
+    results = Point.objects.filter(Point.created_at >= start_dt).allow_filtering().limit(size)
+    total = Point.objects.count()
 
     data = {'points': [point.to_json() for point in results], 'count': total}
     # Only return json if request was for json
@@ -51,15 +52,14 @@ def upload_points(trip, api_key):
         return jsonify({'status': 201, 'message': 'no points posted'}), 400
 
     # Validate
-    if 'points' not in points and points['points'] is list:
+    if 'points' in points and not points['points']:
         return jsonify({'status': 400,
-                        'message': 'Missing points list in posted json'}), 400
+                        'message': 'missing points list in posted json'}), 400
 
     points = points['points']
     for point in points:
         p = Point.from_json(point, trip=trip)
-        db.session.add(p)
-    db.session.commit()
+        p.save()
     print('uploaded {} points'.format(len(points)))
     return jsonify({'status': 201,
                     'message': 'uploaded {} points'.format(len(points))}), 201

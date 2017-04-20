@@ -5,8 +5,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SSL_DISABLE = True
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    SQLALCHEMY_RECORD_QUERIES = True
+    CASSANDRA_HOSTS = ['127.0.0.1']
+    CASSANDRA_KEYSPACE = 'test'
 
     @staticmethod
     def init_app(app):
@@ -16,21 +16,15 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = False
     SSL_DISABLE = True
-    SQLALCHEMY_RECORD_QUERIES = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'postgresql:///stoic_dev'
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'postgresql:///stoic_test'
     WTF_CSRF_ENABLED = False
+    SERVER_NAME = 'localhost'
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql:///stoic'
 
     @classmethod
     def init_app(cls, app):

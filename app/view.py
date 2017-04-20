@@ -2,9 +2,6 @@ from flask import Blueprint, render_template, flash, request, redirect, url_for,
 
 from app.model import db
 from app.model import Point
-from geoalchemy2 import Geometry
-
-from sqlalchemy import desc
 
 import os
 import json
@@ -13,7 +10,7 @@ main = Blueprint('index', __name__)
 @main.route('/')
 def index():
     """ Home page """
-    results = Point.query.order_by(desc(Point.timestamp)).limit(10000).all()
+    results = Point.objects.limit(10000)
     data = {'coordinates': [ point.to_json()['geometry']['coordinates']
 							for point in results],
 			'type':'LineString'}

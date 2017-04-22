@@ -1,9 +1,9 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask.ext.profile import Profiler
+from flask.ext.cqlalchemy import CQLAlchemy
 from config import config
 
-db = SQLAlchemy()
+db = CQLAlchemy()
 profiler = Profiler()
 
 def create_app(config_name):

@@ -7,7 +7,8 @@ from . import db
 
 class Point(db.Model):
     point_id = db.columns.UUID(primary_key=True, default=uuid.uuid4)
-    created_at = db.columns.DateTime(primary_key=True, default=datetime.utcnow())
+    created_at = db.columns.DateTime(primary_key=True,
+                                     default=datetime.utcnow())
     trip_id = db.columns.Text()
     accuracy = db.columns.Double(default=100.0)
     geom = db.columns.List(value_type=db.columns.Float)

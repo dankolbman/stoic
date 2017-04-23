@@ -13,22 +13,10 @@ Many config options can be set in `.venv` environment exports, and others from
 
 #### Database
 
-GPS coords are stored in a postgres database using the PostGIS extension.
-This extension will need to be enabled for all databases (Defaults are `stoic`,
-`staic_dev`, and `stoic_test`). From the docs:
+Install cassandra and run:
 
-```SQL
--- Enable PostGIS (includes raster)
-CREATE EXTENSION postgis;
--- Enable Topology
-CREATE EXTENSION postgis_topology;
-```
-
-The database can be initialized with:
 ```bash
-$ ./manage db init
-$ ./manage.py shell
->>> db.create_all()
+$ ./manage dbinit
 ```
 
 Running

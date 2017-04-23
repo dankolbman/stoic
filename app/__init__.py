@@ -1,6 +1,6 @@
 from flask import Flask
-from flask.ext.profile import Profiler
-from flask.ext.cqlalchemy import CQLAlchemy
+from flask_profile import Profiler
+from flask_cqlalchemy import CQLAlchemy
 from config import config
 
 db = CQLAlchemy()

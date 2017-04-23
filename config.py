@@ -6,7 +6,8 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SSL_DISABLE = True
     CASSANDRA_HOSTS = ['127.0.0.1']
-    CASSANDRA_KEYSPACE = 'test'
+    CASSANDRA_KEYSPACE = 'points'
+    CQLENG_ALLOW_SCHEMA_MANAGEMENT = False
 
     @staticmethod
     def init_app(app):
@@ -16,12 +17,14 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = False
     SSL_DISABLE = True
+    CASSANDRA_KEYSPACE = 'dev'
 
 
 class TestingConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SERVER_NAME = 'localhost'
+    CASSANDRA_KEYSPACE = 'test'
 
 
 class ProductionConfig(Config):

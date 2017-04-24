@@ -5,12 +5,10 @@ python:
   - "3.5"
 cache: pip
 install:
+  - "pip install -r dev-requirements.txt"
   - "pip install -r requirements.txt"
-  - "pip install coveralls"
-  - "pip install pytest"
   - "python setup.py develop"
 script: 
-  - py.test test/ -v
-  - coverage run --source app/ ./manage.py test
+  - py.test -v --cov=app --cov-report term-missing test
 after_success:
   coveralls

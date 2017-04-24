@@ -3,9 +3,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
+    HOST = '0.0.0.0'
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SSL_DISABLE = True
-    CASSANDRA_HOSTS = ['127.0.0.1']
+    CASSANDRA_HOSTS = ['cassandra']
     CASSANDRA_KEYSPACE = 'points'
     CQLENG_ALLOW_SCHEMA_MANAGEMENT = False
 
@@ -24,6 +25,7 @@ class TestingConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SERVER_NAME = 'localhost'
+    CASSANDRA_HOSTS = ['127.0.0.1']
     CASSANDRA_KEYSPACE = 'test'
 
 

@@ -2,9 +2,9 @@ import time
 import json
 import unittest
 from flask import current_app, url_for
-from app import create_app, db
+from points import create_app, db
 
-from app.model import Point
+from points.model import Point
 
 
 class APITestCase(unittest.TestCase):

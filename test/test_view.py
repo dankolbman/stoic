@@ -1,8 +1,7 @@
 import unittest
 from flask import current_app, url_for
-from app import create_app, db
-
-from app.model import Point
+from points import create_app, db
+from points.model import Point
 
 
 class ViewTestCase(unittest.TestCase):

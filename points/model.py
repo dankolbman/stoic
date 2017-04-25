@@ -6,10 +6,10 @@ from .import db
 
 
 class Point(db.Model):
-    point_id = db.columns.UUID(primary_key=True, default=uuid.uuid4)
+    trip_id = db.columns.Text(primary_key=True)
     created_at = db.columns.DateTime(primary_key=True,
                                      default=datetime.utcnow())
-    trip_id = db.columns.Text()
+    point_id = db.columns.UUID(default=uuid.uuid4)
     accuracy = db.columns.Double(default=100.0)
     geom = db.columns.List(value_type=db.columns.Float)
 

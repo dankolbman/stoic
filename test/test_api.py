@@ -196,3 +196,47 @@ class APITestCase(unittest.TestCase):
         points = Point.objects.all()
         self.assertEqual([p.accuracy for p in points if p.accuracy != 100.0],
                          [10.0])
+
+    def test_tripid(self):
+        """ test retrieving certain trip points """
+        from datetime import datetime
+        pt_json = {
+                        'points': [
+                            {'latitude': -87.682322,
+                             'longitude': 41.839344,
+                             'trip_id': 'trip1',
+                             'created_at': datetime.utcnow().timestamp(),
+                             'accuracy': 10.0},
+                            {'latitude': -87.682322,
+                             'longitude': 41.839344,
+                             'created_at': datetime.utcnow().timestamp()+1000,
+                             'trip_id': 'trip1'},
+                            {'latitude': -87.682322,
+                             'longitude': 41.839344,
+                             'created_at': datetime.utcnow().timestamp()+2000,
+                             'trip_id': 'trip1'},
+                            {'latitude': -87.682322,
+                             'longitude': 41.839344,
+                             'created_at': datetime.utcnow().timestamp()+3000,
+                             'trip_id': 'trip2'},
+                            {'latitude': -87.682322,
+                             'longitude': 41.839344,
+                             'created_at': datetime.utcnow().timestamp()+4000,
+                             'trip_id': 'trip2'}
+                        ]
+                    }
+
+        response = self.client.put(
+                    url_for('points_points'),
+                    headers=self._api_headers(),
+                    data=json.dumps(pt_json))
+
+        response = self.client.get(url_for('points_points', trip='trip1'))
+        json_response = json.loads(response.data.decode('utf-8'))
+
+        self.assertEqual(len(json_response['points']), 3)
+
+        response = self.client.get(url_for('points_points', trip='trip2'))
+        json_response = json.loads(response.data.decode('utf-8'))
+
+        self.assertEqual(len(json_response['points']), 2)

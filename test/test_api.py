@@ -31,7 +31,7 @@ class APITestCase(unittest.TestCase):
 
     def test_status(self):
         """ Check that the api status is returning 200 """
-        response = self.client.get(url_for('api.status'))
+        response = self.client.get(url_for('points_status'))
         # Check response
         self.assertTrue(response.status_code == 200)
         # Check content of json response status
@@ -48,7 +48,7 @@ class APITestCase(unittest.TestCase):
         point.save()
         self.assertEqual(Point.objects.count(), 1)
 
-        response = self.client.get(url_for('api.points'))
+        response = self.client.get(url_for('points_points'))
         # check response
         self.assertEqual(response.status_code, 200)
         # check content of json response status
@@ -56,25 +56,21 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['count'], 1)
         self.assertEqual(json_response['count'], len(json_response['points']))
 
-        response = self.client.get(url_for('api.points'),
-                                   query_string=dict(as_html=True))
-        self.assertTrue('<html>' in str(response.data))
-
     def test_no_points(self):
-        """ Test response for empty post """
-        response = self.client.post(
-                    url_for('api.upload_points', trip='test', api_key='123'),
+        """ Test response for empty put """
+        response = self.client.put(
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps({}))
         json_response = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(response.status, '400 BAD REQUEST')
-        self.assertEqual(json_response['message'], 'no points posted')
-        self.assertEqual(json_response['status'], 201)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(json_response['message'], 'no points created')
+        self.assertEqual(json_response['status'], 200)
 
     def test_missing_points(self):
-        """ Test response for empty post """
-        response = self.client.post(
-                    url_for('api.upload_points', trip='test', api_key='123'),
+        """ Test response for empty put """
+        response = self.client.put(
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps({'points': []}))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -105,13 +101,13 @@ class APITestCase(unittest.TestCase):
                              'longitude': 41.839344},
                         ]
                   }
-        # post points through api
-        response = self.client.post(
-                    url_for('api.upload_points', trip='test', api_key='123'),
+        # put points through api
+        response = self.client.put(
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         t = time.time()
-        # post a second batch of points to get different timestamps
+        # put a second batch of points to get different timestamps
         pt_json = {
                         'points': [
                             {'latitude': -87.682321,
@@ -131,13 +127,13 @@ class APITestCase(unittest.TestCase):
                              'created_at': t},
                         ]
                    }
-        response = self.client.post(
-                    url_for('api.upload_points', trip='test', api_key='123'),
+        response = self.client.put(
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         # get the points
         response = self.client.get(
-                    url_for('api.points'),
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -145,7 +141,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['count'], 13)
         # Get the second group of points (t > utc epoch)
         response = self.client.get(
-                    url_for('api.points'),
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     query_string=dict(start=int(t), size=10))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -160,8 +156,8 @@ class APITestCase(unittest.TestCase):
                     ]
                   }
 
-        response = self.client.post(
-                    url_for('api.upload_points', trip='test', api_key='123'),
+        response = self.client.put(
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -189,8 +185,8 @@ class APITestCase(unittest.TestCase):
                         ]
                     }
 
-        response = self.client.post(
-                    url_for('api.upload_points', trip='test', api_key='123'),
+        response = self.client.put(
+                    url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))

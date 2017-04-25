@@ -31,7 +31,7 @@ def test(coverage=False):
 
 @manager.option('-n', '--npoints', help='Number of points')
 @manager.option('-t', '--tripid', help='Trip id')
-def random_points(npoints=1, trip_id='test trip'):
+def random_points(npoints=1, tripid='test trip'):
     """Inserts n random points into the db"""
     from datetime import datetime
     from points.model import Point
@@ -41,7 +41,7 @@ def random_points(npoints=1, trip_id='test trip'):
         for i in range(int(npoints)):
             pt = Point.batch(b).create(accuracy=25.0,
                                        created_at=datetime.utcnow(), 
-                                       trip_id=trip_id,
+                                       trip_id=tripid,
                                        geom=[random()*90.0,
                                              random()*360.0-180.0])
             if i %100 == 0:

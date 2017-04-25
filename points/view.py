@@ -3,8 +3,7 @@ from flask import (
     render_template
 )
 
-from app.model import db
-from app.model import Point
+from points.model import db, Point
 
 import os
 import json

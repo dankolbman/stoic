@@ -3,8 +3,8 @@ import unittest
 from datetime import datetime
 
 from flask import current_app, url_for
-from app import create_app, db
-from app.model import Point
+from points import create_app, db
+from points.model import Point
 
 from cassandra.cqlengine.management import create_keyspace_simple
 

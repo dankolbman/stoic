@@ -14,11 +14,11 @@ class ViewTestCase(unittest.TestCase):
 
         db.create_keyspace_simple(self.app.config['CASSANDRA_KEYSPACE'], 1)
         db.sync_db()
-        d = [ p.delete() for p in Point.objects.all()]
+        d = [p.delete() for p in Point.objects.all()]
         self.client = self.app.test_client()
 
     def tearDown(self):
-        d = [ p.delete() for p in Point.objects.all()]
+        d = [p.delete() for p in Point.objects.all()]
         self.app_context.pop()
 
     def test_index(self):

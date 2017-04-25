@@ -18,11 +18,13 @@ def json_serial(obj):
     if isinstance(obj, datetime):
         serial = obj.isoformat()
         return serial
-    raise TypeError ("Type not serializable")
+    raise TypeError("Type not serializable")
+
 
 @api.route('/', methods=['GET'])
 def status():
-    return jsonify({ 'status': 200, 'version': API_VERSION })
+    return jsonify({'status': 200, 'version': API_VERSION})
+
 
 @api.route('/points', methods=['GET'])
 def points():
@@ -31,18 +33,20 @@ def points():
     start = request.args.get('start', 0, type=int)
     start_dt = datetime.utcfromtimestamp(start)
     size = min(request.args.get('size', 10, type=int), 1000)
-    results = Point.objects.filter(Point.created_at >= start_dt).allow_filtering().limit(size)
+    results = (Point.objects.filter(Point.created_at >= start_dt)
+               .allow_filtering().limit(size))
     total = Point.objects.count()
 
     data = {'points': [point.to_json() for point in results], 'count': total}
     # Only return json if request was for json
     if not as_html:
         return jsonify(data)
-    # Otherwise, return html so we can see the browser profiler/code highligting
+    # Otherwise, return html for browser profiler/code highligting
     else:
         data = json.dumps(data, default=json_serial,
                           indent=4,  separators=(',', ': '))
         return render_template('json.html', data=data)
+
 
 @api.route('/<string:trip>/<string:api_key>/pings', methods=['POST'])
 def upload_points(trip, api_key):

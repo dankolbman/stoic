@@ -19,7 +19,7 @@ class Point(db.Model):
                     'point_id': str(self.point_id),
                     'created_at': self.created_at.isoformat(),
                     'accuracy': self.accuracy,
-                    'geometry': { 'coordinates':self.geom }
+                    'geometry': {'coordinates': self.geom}
                 }
 
         return pt_json
@@ -29,7 +29,7 @@ class Point(db.Model):
         """ Creates a new point from a json object """
         defaults = {'accuracy': 100.0, 'created_at': 0, 'trip_id': trip}
         defaults.update(point_json)
-        latlon = [ point_json['longitude'], point_json['latitude'] ]
+        latlon = [point_json['longitude'], point_json['latitude']]
         ts = datetime.utcfromtimestamp(defaults['created_at'])
         return Point(geom=latlon,
                      accuracy=defaults['accuracy'],

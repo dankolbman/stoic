@@ -2,6 +2,7 @@ from flask import request, jsonify
 from ..model import Point
 from flask_restplus import Api, Resource, Namespace, fields
 from datetime import datetime
+import dateutil.parser
 
 
 api = Namespace('points', description='Point operations V1')
@@ -31,11 +32,14 @@ class Points(Resource):
     @api.marshal_with(paginated)
     def get(self, **kwargs):
         """ Retrieves points """
-        start = request.args.get('start', 0, type=int)
-        start_dt = datetime.utcfromtimestamp(start)
+        epoch = datetime.fromtimestamp(0).isoformat()
+        start = request.args.get('start', epoch, type=str)
+        trip = request.args.get('trip', 't', type=str)
+        start_dt = dateutil.parser.parse(start)
         size = min(request.args.get('size', 10, type=int), 1000)
-        results = (Point.objects.filter(Point.created_at >= start_dt)
-                   .allow_filtering().limit(size))
+        results = (Point.objects.filter(Point.trip_id == trip)
+                   .filter(Point.created_at >= start_dt)
+                   .limit(size))
         total = Point.objects.count()
         return {'points': list(results), 'count': total}
 

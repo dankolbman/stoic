@@ -53,5 +53,5 @@ class ModelTestCase(unittest.TestCase):
 
         point = Point.from_json(point_json)
         self.assertEqual(point.accuracy, 15.0)
-        self.assertEqual(point.created_at, datetime(1970, 1, 1, 0, 0))
+        self.assertAlmostEqual(point.created_at.timestamp(), dt.timestamp(), 1)
         self.assertEqual(Point.objects.count(), 1)

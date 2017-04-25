@@ -1,15 +1,16 @@
 import uuid
 import json
 from datetime import datetime
+import dateutil.parser
 
 from .import db
 
 
 class Point(db.Model):
-    point_id = db.columns.UUID(primary_key=True, default=uuid.uuid4)
+    trip_id = db.columns.Text(primary_key=True)
     created_at = db.columns.DateTime(primary_key=True,
                                      default=datetime.utcnow())
-    trip_id = db.columns.Text()
+    point_id = db.columns.UUID(default=uuid.uuid4)
     accuracy = db.columns.Double(default=100.0)
     geom = db.columns.List(value_type=db.columns.Float)
 
@@ -27,11 +28,12 @@ class Point(db.Model):
     @staticmethod
     def from_json(point_json, trip='default'):
         """ Creates a new point from a json object """
-        defaults = {'accuracy': 100.0, 'created_at': 0, 'trip_id': trip}
+        now = datetime.utcnow().isoformat()
+        defaults = {'accuracy': 100.0, 'created_at': now, 'trip_id': trip}
         defaults.update(point_json)
         latlon = [point_json['longitude'], point_json['latitude']]
-        ts = datetime.utcfromtimestamp(defaults['created_at'])
+        dt = dateutil.parser.parse(defaults['created_at'])
         return Point(geom=latlon,
                      accuracy=defaults['accuracy'],
-                     created_at=ts,
+                     created_at=dt,
                      trip_id=defaults['trip_id'])

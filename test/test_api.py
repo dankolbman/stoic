@@ -1,5 +1,7 @@
 import time
 import json
+from random import random
+from datetime import datetime
 import unittest
 from flask import current_app, url_for
 from points import create_app, db
@@ -18,6 +20,16 @@ class APITestCase(unittest.TestCase):
         db.sync_db()
         d = [p.delete() for p in Point.objects.all()]
         self.client = self.app.test_client()
+
+    def _generate_points(self, n=10, trip='trip'):
+        pts = []
+        for i in range(n):
+            time.sleep(0.001)
+            pts.append({'latitude': random()*90.0,
+                        'longitude': random()*360.0-180.0,
+                        'trip_id': trip,
+                        'created_at': datetime.utcnow().isoformat()})
+        return {'points': pts}
 
     def tearDown(self):
         d = [p.delete() for p in Point.objects.all()]
@@ -48,7 +60,8 @@ class APITestCase(unittest.TestCase):
         point.save()
         self.assertEqual(Point.objects.count(), 1)
 
-        response = self.client.get(url_for('points_points'))
+        response = self.client.get(url_for('points_points'),
+                                   query_string={'trip': 'default'})
         # check response
         self.assertEqual(response.status_code, 200)
         # check content of json response status
@@ -81,52 +94,15 @@ class APITestCase(unittest.TestCase):
     def test_pagination(self):
         """ Test pagination of points """
         # add a bunch of points
-        pt_json = {
-                        'points': [
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344},
-                        ]
-                  }
+        pt_json = self._generate_points(13, trip='trip1')
         # put points through api
         response = self.client.put(
                     url_for('points_points'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
-        t = time.time()
+        t = datetime.utcnow().isoformat()
         # put a second batch of points to get different timestamps
-        pt_json = {
-                        'points': [
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344,
-                             'created_at': t},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344,
-                             'created_at': t},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344,
-                             'created_at': t},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344,
-                             'created_at': t},
-                            {'latitude': -87.682321,
-                             'longitude': 41.839344,
-                             'created_at': t},
-                        ]
-                   }
+        pt_json = self._generate_points(5, trip='trip1')
         response = self.client.put(
                     url_for('points_points'),
                     headers=self._api_headers(),
@@ -135,15 +111,22 @@ class APITestCase(unittest.TestCase):
         response = self.client.get(
                     url_for('points_points'),
                     headers=self._api_headers(),
-                    data=json.dumps(pt_json))
+                    query_string=dict(trip='trip1'))
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(len(json_response['points']), 10)
-        self.assertEqual(json_response['count'], 13)
-        # Get the second group of points (t > utc epoch)
+        self.assertEqual(json_response['count'], 18)
+        # test size param
         response = self.client.get(
                     url_for('points_points'),
                     headers=self._api_headers(),
-                    query_string=dict(start=int(t), size=10))
+                    query_string=dict(trip='trip1', size=15))
+        json_response = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(len(json_response['points']), 15)
+        # test the start param
+        response = self.client.get(
+                    url_for('points_points'),
+                    headers=self._api_headers(),
+                    query_string=dict(start=t, size=10, trip='trip1'))
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(len(json_response['points']), 5)
 
@@ -199,33 +182,14 @@ class APITestCase(unittest.TestCase):
 
     def test_tripid(self):
         """ test retrieving certain trip points """
-        from datetime import datetime
-        pt_json = {
-                        'points': [
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344,
-                             'trip_id': 'trip1',
-                             'created_at': datetime.utcnow().timestamp(),
-                             'accuracy': 10.0},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344,
-                             'created_at': datetime.utcnow().timestamp()+1000,
-                             'trip_id': 'trip1'},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344,
-                             'created_at': datetime.utcnow().timestamp()+2000,
-                             'trip_id': 'trip1'},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344,
-                             'created_at': datetime.utcnow().timestamp()+3000,
-                             'trip_id': 'trip2'},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344,
-                             'created_at': datetime.utcnow().timestamp()+4000,
-                             'trip_id': 'trip2'}
-                        ]
-                    }
 
+        pt_json = self._generate_points(3, trip='trip1')
+        response = self.client.put(
+                    url_for('points_points'),
+                    headers=self._api_headers(),
+                    data=json.dumps(pt_json))
+
+        pt_json = self._generate_points(2, trip='trip2')
         response = self.client.put(
                     url_for('points_points'),
                     headers=self._api_headers(),

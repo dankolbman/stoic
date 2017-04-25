@@ -8,9 +8,9 @@ if os.path.exists('.env'):
         if len(var) == 2:
             os.environ[var[0]] = var[1]
 
-from app import create_app, db
+from points import create_app, db
 from flask_script import Manager, Shell
-from app.model import Point
+from points.model import Point
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -34,7 +34,7 @@ def test(coverage=False):
 def random_points(npoints=1, trip_id='test trip'):
     """Inserts n random points into the db"""
     from datetime import datetime
-    from app.model import Point
+    from points.model import Point
     from random import random
     from cassandra.cqlengine.query import BatchQuery
     with BatchQuery() as b:
@@ -71,7 +71,7 @@ def load_points(filepath):
 def dbbenchmark():
     """ Benchmark the database by inserting many points and querying them """
     import time
-    from app.model import Point
+    from points.model import Point
     from random import random
     from cassandra.cluster import Cluster
     from cassandra.cqlengine.query import BatchQuery

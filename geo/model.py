@@ -17,11 +17,18 @@ class Point(db.Model):
     def to_json(self):
         """ Returns json representation of the point """
         pt_json = {
-                    'point_id': str(self.point_id),
-                    'created_at': self.created_at.isoformat(),
-                    'accuracy': self.accuracy,
-                    'geometry': {'coordinates': self.geom}
-                }
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": self.geom
+                    },
+                    "properties": {
+                        "point_id": str(self.point_id),
+                        "trip_id": self.trip_id,
+                        "created_at": self.created_at.isoformat(),
+                        "accuracy": self.accuracy
+                    }
+                   }
 
         return pt_json
 
@@ -30,8 +37,8 @@ class Point(db.Model):
         """ Creates a new point from a json object """
         now = datetime.utcnow().isoformat()
         defaults = {'accuracy': 100.0, 'created_at': now, 'trip_id': trip}
-        defaults.update(point_json)
-        latlon = [point_json['longitude'], point_json['latitude']]
+        defaults.update(point_json['properties'])
+        latlon = point_json['geometry']['coordinates']
         dt = dateutil.parser.parse(defaults['created_at'])
         return Point(geom=latlon,
                      accuracy=defaults['accuracy'],

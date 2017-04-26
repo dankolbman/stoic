@@ -39,17 +39,17 @@ class ModelTestCase(unittest.TestCase):
 
         self.assertEqual(Point.objects().count(), 1)
         js = point.to_json()
-        self.assertEqual(js['point_id'], str(point.point_id))
+        self.assertEqual(js['properties']['point_id'], str(point.point_id))
         # Cassandra will lose precision on dates
-        self.assertEqual(js['created_at'][:-4], dt.isoformat()[:-4])
-        self.assertEqual(point.to_json()['accuracy'], 25.0)
+        self.assertEqual(js['properties']['created_at'][:-4],
+                         dt.isoformat()[:-4])
+        self.assertEqual(js['properties']['accuracy'], 25.0)
         # Cassandra will return exact float representation
         self.assertAlmostEqual(js['geometry']['coordinates'][0], lat, 5)
         self.assertAlmostEqual(js['geometry']['coordinates'][1], lon, 5)
 
-        point_json = {'longitude': lon,
-                      'latitude': lat,
-                      'accuracy': 15.0}
+        point_json = {"geometry": {"coordinates": [lon, lat]},
+                      "properties": {"accuracy": 15.0}}
 
         point = Point.from_json(point_json)
         self.assertEqual(point.accuracy, 15.0)

@@ -25,11 +25,19 @@ class APITestCase(unittest.TestCase):
         pts = []
         for i in range(n):
             time.sleep(0.001)
-            pts.append({'latitude': random()*90.0,
-                        'longitude': random()*360.0-180.0,
-                        'trip_id': trip,
-                        'created_at': datetime.utcnow().isoformat()})
-        return {'points': pts}
+            pts.append({"type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [random()*90.0,
+                                            random()*360.0-180.0],
+                            },
+                        "properties": {
+                            "trip_id": trip,
+                            "created_at": datetime.utcnow().isoformat(),
+                            "accuracy": 25.0
+                            }
+                        })
+        return {"points": pts}
 
     def tearDown(self):
         d = [p.delete() for p in Point.objects.all()]
@@ -132,12 +140,7 @@ class APITestCase(unittest.TestCase):
 
     def test_single_point_submission(self):
         """ test submission of single point """
-        pt_json = {
-                    'points': [
-                        {'latitude': -87.684722,
-                         'longitude': 41.836944}
-                    ]
-                  }
+        pt_json = self._generate_points(1, trip='testing')
 
         response = self.client.put(
                     url_for('points_points'),
@@ -148,25 +151,11 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['message'], 'uploaded 1 points')
         self.assertEqual(Point.objects.count(), 1)
         point = Point.objects.first()
-        self.assertEqual(point.accuracy, 100.0)
+        self.assertEqual(point.trip_id, 'testing')
 
     def test_many_point_submission(self):
         """ test submission of many points """
-        pt_json = {
-                        'points': [
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344,
-                             'accuracy': 10.0},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344},
-                            {'latitude': -87.682322,
-                             'longitude': 41.839344}
-                        ]
-                    }
+        pt_json = self._generate_points(5, trip='testing')
 
         response = self.client.put(
                     url_for('points_points'),
@@ -177,8 +166,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['message'], 'uploaded 5 points')
         self.assertEqual(Point.objects.count(), 5)
         points = Point.objects.all()
-        self.assertEqual([p.accuracy for p in points if p.accuracy != 100.0],
-                         [10.0])
+        self.assertTrue(all([p.trip_id == 'testing' for p in points]))
 
     def test_tripid(self):
         """ test retrieving certain trip points """

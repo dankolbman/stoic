@@ -7,16 +7,27 @@ import dateutil.parser
 
 api = Namespace('points', description='Point operations V1')
 
-model = api.model('Point', {
+
+prop_model = api.model('Properties', {
+        'trip_id': fields.String(description='Trip UUID'),
         'point_id': fields.String(description='Point UUID'),
         'created_at': fields.DateTime(description='Time of creation'),
-        'trip_id': fields.String(description='Trip UUID'),
         'accuracy': fields.Float(description='Accuracy of the point'),
-        'geom': fields.List(fields.Float, description=('lat, lon pair'))
+    })
+
+geom_model = api.model('Geometry', {
+        'type': fields.String(description='Geometry type'),
+        'coordinates': fields.List(fields.Float, description=('lon, lat pair'))
+    })
+
+point_model = api.model('Point', {
+        'type': fields.String(description='GeoJSON type'),
+        'geometry': fields.Nested(geom_model),
+        'properties': fields.Nested(prop_model)
     })
 
 paginated = api.model('PagedPoints', {
-        'points': fields.List(fields.Nested(model)),
+        'points': fields.List(fields.Nested(point_model)),
         'count': fields.Integer(description='Number of results')
     })
 
@@ -31,7 +42,9 @@ class Status(Resource):
 class Points(Resource):
     @api.marshal_with(paginated)
     def get(self, **kwargs):
-        """ Retrieves points """
+        """
+        Retrieve points in GeoJSON format
+        """
         epoch = datetime.fromtimestamp(0).isoformat()
         start = request.args.get('start', epoch, type=str)
         trip = request.args.get('trip', 't', type=str)

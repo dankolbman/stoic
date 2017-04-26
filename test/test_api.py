@@ -4,9 +4,9 @@ from random import random
 from datetime import datetime
 import unittest
 from flask import current_app, url_for
-from points import create_app, db
+from geo import create_app, db
 
-from points.model import Point
+from geo.model import Point
 
 
 class APITestCase(unittest.TestCase):

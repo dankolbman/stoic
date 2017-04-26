@@ -1,7 +1,7 @@
 Points
 ========
-[![Build Status](https://travis-ci.org/dankolbman/stoic-points.svg?branch=master)](https://travis-ci.org/dankolbman/stoic-points)
-[![Coverage Status](https://coveralls.io/repos/github/dankolbman/stoic-points/badge.svg)](https://coveralls.io/github/dankolbman/stoic-points)
+[![Build Status](https://travis-ci.org/dankolbman/stoic-points.svg?branch=master)](https://travis-ci.org/dankolbman/stoic-geo)
+[![Coverage Status](https://coveralls.io/repos/github/dankolbman/stoic-points/badge.svg)](https://coveralls.io/github/dankolbman/stoic-geo)
 
 Points API for Stoic
 

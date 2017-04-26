@@ -54,7 +54,7 @@ class Points(Resource):
                    .filter(Point.created_at >= start_dt)
                    .limit(size))
         total = Point.objects.count()
-        return {'points': list(results), 'count': total}
+        return {'points': [r.to_json() for r in results], 'count': total}
 
     def put(self, **kwargs):
         """ Creates points and inserts to the database """

@@ -1,9 +1,11 @@
-Points
+Geo
 ========
 [![Build Status](https://travis-ci.org/dankolbman/stoic-geo.svg?branch=master)](https://travis-ci.org/dankolbman/stoic-geo)
 [![Coverage Status](https://coveralls.io/repos/github/dankolbman/stoic-geo/badge.svg)](https://coveralls.io/github/dankolbman/stoic-geo)
 
-Points API for Stoic
+Geo API for Stoic.
+
+Stores and returns GeoJSON primitives for use by Stoic.
 
 Installing
 ----------

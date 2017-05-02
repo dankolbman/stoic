@@ -30,9 +30,10 @@ class ModelTestCase(unittest.TestCase):
         dt = datetime.utcnow()
         lat = 41.836944
         lon = -87.684722
-        point = Point.create(created_at=dt,
+        point = Point.create(username='Dan',
+                             created_at=dt,
                              accuracy=25.0,
-                             geom=[lat, lon],
+                             coord=[lat, lon],
                              trip_id='default')
         point.save()
         point = Point.objects().limit(1)[0]
@@ -49,7 +50,8 @@ class ModelTestCase(unittest.TestCase):
         self.assertAlmostEqual(js['geometry']['coordinates'][1], lon, 5)
 
         point_json = {"geometry": {"coordinates": [lon, lat]},
-                      "properties": {"accuracy": 15.0}}
+                      "properties": {"username": "dan",
+                                     "accuracy": 15.0}}
 
         point = Point.from_json(point_json)
         self.assertEqual(point.accuracy, 15.0)

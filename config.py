@@ -19,6 +19,7 @@ class DevelopmentConfig(Config):
     DEBUG = False
     SSL_DISABLE = True
     CASSANDRA_KEYSPACE = 'dev'
+    CASSANDRA_HOSTS = ['127.0.0.1']
 
 
 class TestingConfig(Config):

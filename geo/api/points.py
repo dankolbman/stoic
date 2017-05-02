@@ -38,10 +38,10 @@ class Status(Resource):
         return {'status': 200, 'version': '1.0'}
 
 
-@api.route('/')
+@api.route('/<string:username>')
 class Points(Resource):
     @api.marshal_with(paginated)
-    def get(self, **kwargs):
+    def get(self, username):
         """
         Retrieve points in GeoJSON format
         """
@@ -50,13 +50,14 @@ class Points(Resource):
         trip = request.args.get('trip', 't', type=str)
         start_dt = dateutil.parser.parse(start)
         size = min(request.args.get('size', 10, type=int), 1000)
-        results = (Point.objects.filter(Point.trip_id == trip)
+        results = (Point.objects.filter(Point.username == username)
+                   .filter(Point.trip_id == trip)
                    .filter(Point.created_at >= start_dt)
                    .limit(size))
         total = Point.objects.count()
         return {'points': [r.to_json() for r in results], 'count': total}
 
-    def put(self, **kwargs):
+    def put(self, username):
         """ Creates points and inserts to the database """
         points = request.json
         if not points:
@@ -69,7 +70,7 @@ class Points(Resource):
 
         points = points['points']
         for point in points:
-            p = Point.from_json(point)
+            p = Point.from_json(point, username=username)
             p.save()
 
         return {'status': 201,

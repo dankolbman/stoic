@@ -70,8 +70,9 @@ class APITestCase(unittest.TestCase):
         point.save()
         self.assertEqual(Point.objects.count(), 1)
 
-        response = self.client.get(url_for('points_points', username='Dan'),
-                                   query_string={'trip': 'default'})
+        response = self.client.get(url_for('points_points',
+                                           username='Dan',
+                                           trip='default'))
         # check response
         self.assertEqual(response.status_code, 200)
         # check content of json response status
@@ -80,9 +81,9 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['count'], len(json_response['points']))
 
     def test_no_points(self):
-        """ Test response for empty put """
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        """ Test response for empty post """
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='default'),
                     headers=self._api_headers(),
                     data=json.dumps({}))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -91,9 +92,9 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['status'], 200)
 
     def test_missing_points(self):
-        """ Test response for empty put """
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        """ Test response for empty post """
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='default'),
                     headers=self._api_headers(),
                     data=json.dumps({'points': []}))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -105,38 +106,37 @@ class APITestCase(unittest.TestCase):
         """ Test pagination of points """
         # add a bunch of points
         pt_json = self._generate_points(13, trip='trip1')
-        # put points through api
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        # post points through api
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         t = datetime.utcnow().isoformat()
-        # put a second batch of points to get different timestamps
+        # post a second batch of points to get different timestamps
         pt_json = self._generate_points(5, trip='trip1')
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         # get the points
         response = self.client.get(
-                    url_for('points_points', username='Dan'),
-                    headers=self._api_headers(),
-                    query_string=dict(trip='trip1'))
+                    url_for('points_points', username='Dan', trip='trip1'),
+                    headers=self._api_headers())
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(len(json_response['points']), 10)
         self.assertEqual(json_response['count'], 18)
         # test size param
         response = self.client.get(
-                    url_for('points_points', username='Dan'),
+                    url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers(),
-                    query_string=dict(trip='trip1', size=15))
+                    query_string=dict(size=15))
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(len(json_response['points']), 15)
         # test the start param
         response = self.client.get(
-                    url_for('points_points', username='Dan'),
+                    url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers(),
-                    query_string=dict(start=t, size=10, trip='trip1'))
+                    query_string=dict(start=t, size=10))
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(len(json_response['points']), 5)
 
@@ -144,8 +144,8 @@ class APITestCase(unittest.TestCase):
         """ test submission of single point """
         pt_json = self._generate_points(1, trip='testing')
 
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='default'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -159,8 +159,8 @@ class APITestCase(unittest.TestCase):
         """ test submission of many points """
         pt_json = self._generate_points(5, trip='testing')
 
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='default'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -173,14 +173,14 @@ class APITestCase(unittest.TestCase):
     def test_tripid(self):
         """ test retrieving certain trip points """
         pt_json = self._generate_points(3, trip='trip1')
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
 
         pt_json = self._generate_points(2, trip='trip2')
-        response = self.client.put(
-                    url_for('points_points', username='Dan'),
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='trip2'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
 

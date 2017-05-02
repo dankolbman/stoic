@@ -40,12 +40,13 @@ class Point(db.Model):
         now = datetime.utcnow().isoformat()
         defaults = {'accuracy': 0.0,
                     'created_at': now,
-                    'trip_id': trip}
+                    'trip_id': trip,
+                    'username': username}
         defaults.update(point_json['properties'])
         latlon = point_json['geometry']['coordinates']
         dt = dateutil.parser.parse(defaults['created_at'])
         return Point(coord=latlon,
                      accuracy=defaults['accuracy'],
-                     username=username,
+                     username=defaults['username'],
                      created_at=dt,
                      trip_id=defaults['trip_id'])

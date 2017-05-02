@@ -23,10 +23,10 @@ manager.add_command("shell", Shell(make_context=make_shell_context))
 
 @manager.command
 def test(coverage=False):
-    """Run the unit tests."""
-    import unittest
-    tests = unittest.TestLoader().discover('test')
-    unittest.TextTestRunner(verbosity=2).run(tests)
+    """ Run the unit tests and pep8 checks """
+    from subprocess import call
+    call(["python","-m","pytest","test"])
+    call(["python","-m","pytest","--pep8","geo"])
 
 
 @manager.option('-n', '--npoints', help='Number of points')
@@ -54,20 +54,19 @@ def random_points(npoints=1, tripid='test trip'):
 def load_points(filepath):
     ''' Load points from file and insert into db '''
     from datetime import datetime
+    import dateutil.parser
     with open(filepath, 'r') as f:
         for row in f:
             line = row.split(',')
-            try:
-                dt = datetime.strptime(line[0], '%Y-%m-%d %H:%M:%S.%f')
-            except:
-                dt = datetime.strptime(line[0], '%Y-%m-%d %H:%M:%S')
+            dt = dateutil.parser.parse(line[0])
             acc = float(line[1])
             lat = float(line[3])
             lon = float(line[2])
-            pt = Point(timestamp=dt,
+            pt = Point.create(created_at=dt,
                        accuracy=acc,
-                       geom=Point.point_geom([lat,lon]))
-            pt.save
+                       geom=[lon, lat],
+                       trip_id='asia')
+    print(Point.objects.count())
 
 @manager.command
 def dbbenchmark():

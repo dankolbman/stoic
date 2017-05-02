@@ -3,16 +3,17 @@ import json
 from datetime import datetime
 import dateutil.parser
 
-from .import db
+from . import db
 
 
 class Point(db.Model):
-    trip_id = db.columns.Text(primary_key=True)
+    username = db.columns.Text(partition_key=True)
+    trip_id = db.columns.Text(partition_key=True)
     created_at = db.columns.DateTime(primary_key=True,
                                      default=datetime.utcnow())
     point_id = db.columns.UUID(default=uuid.uuid4)
-    accuracy = db.columns.Double(default=100.0)
-    geom = db.columns.List(value_type=db.columns.Float)
+    accuracy = db.columns.Double(default=0.0)
+    coord = db.columns.List(value_type=db.columns.Float)
 
     def to_json(self):
         """ Returns json representation of the point """
@@ -20,9 +21,10 @@ class Point(db.Model):
                     "type": "Feature",
                     "geometry": {
                         "type": "Point",
-                        "coordinates": self.geom
+                        "coordinates": self.coord
                     },
                     "properties": {
+                        "username": self.username,
                         "point_id": str(self.point_id),
                         "trip_id": self.trip_id,
                         "created_at": self.created_at.isoformat(),
@@ -33,14 +35,17 @@ class Point(db.Model):
         return pt_json
 
     @staticmethod
-    def from_json(point_json, trip='default'):
+    def from_json(point_json, trip='default', username='default'):
         """ Creates a new point from a json object """
         now = datetime.utcnow().isoformat()
-        defaults = {'accuracy': 100.0, 'created_at': now, 'trip_id': trip}
+        defaults = {'accuracy': 0.0,
+                    'created_at': now,
+                    'trip_id': trip}
         defaults.update(point_json['properties'])
         latlon = point_json['geometry']['coordinates']
         dt = dateutil.parser.parse(defaults['created_at'])
-        return Point(geom=latlon,
+        return Point(coord=latlon,
                      accuracy=defaults['accuracy'],
+                     username=username,
                      created_at=dt,
                      trip_id=defaults['trip_id'])

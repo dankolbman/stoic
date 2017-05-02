@@ -32,6 +32,7 @@ class APITestCase(unittest.TestCase):
                                             random()*360.0-180.0],
                             },
                         "properties": {
+                            "username": "Dan",
                             "trip_id": trip,
                             "created_at": datetime.utcnow().isoformat(),
                             "accuracy": 25.0
@@ -62,13 +63,14 @@ class APITestCase(unittest.TestCase):
     def test_points(self):
         """ Test points endpoint """
         self.assertEqual(Point.objects.count(), 0)
-        point = Point(geom=[-87.682321, 41.839344],
+        point = Point(coord=[-87.682321, 41.839344],
+                      username='Dan',
                       accuracy=10.0,
                       trip_id='default')
         point.save()
         self.assertEqual(Point.objects.count(), 1)
 
-        response = self.client.get(url_for('points_points'),
+        response = self.client.get(url_for('points_points', username='Dan'),
                                    query_string={'trip': 'default'})
         # check response
         self.assertEqual(response.status_code, 200)
@@ -80,7 +82,7 @@ class APITestCase(unittest.TestCase):
     def test_no_points(self):
         """ Test response for empty put """
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps({}))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -91,7 +93,7 @@ class APITestCase(unittest.TestCase):
     def test_missing_points(self):
         """ Test response for empty put """
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps({'points': []}))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -105,19 +107,19 @@ class APITestCase(unittest.TestCase):
         pt_json = self._generate_points(13, trip='trip1')
         # put points through api
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         t = datetime.utcnow().isoformat()
         # put a second batch of points to get different timestamps
         pt_json = self._generate_points(5, trip='trip1')
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         # get the points
         response = self.client.get(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     query_string=dict(trip='trip1'))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -125,14 +127,14 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(json_response['count'], 18)
         # test size param
         response = self.client.get(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     query_string=dict(trip='trip1', size=15))
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(len(json_response['points']), 15)
         # test the start param
         response = self.client.get(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     query_string=dict(start=t, size=10, trip='trip1'))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -143,7 +145,7 @@ class APITestCase(unittest.TestCase):
         pt_json = self._generate_points(1, trip='testing')
 
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -158,7 +160,7 @@ class APITestCase(unittest.TestCase):
         pt_json = self._generate_points(5, trip='testing')
 
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
         json_response = json.loads(response.data.decode('utf-8'))
@@ -170,25 +172,28 @@ class APITestCase(unittest.TestCase):
 
     def test_tripid(self):
         """ test retrieving certain trip points """
-
         pt_json = self._generate_points(3, trip='trip1')
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
 
         pt_json = self._generate_points(2, trip='trip2')
         response = self.client.put(
-                    url_for('points_points'),
+                    url_for('points_points', username='Dan'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
 
-        response = self.client.get(url_for('points_points', trip='trip1'))
+        response = self.client.get(url_for('points_points',
+                                           username='Dan',
+                                           trip='trip1'))
         json_response = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(len(json_response['points']), 3)
 
-        response = self.client.get(url_for('points_points', trip='trip2'))
+        response = self.client.get(url_for('points_points',
+                                           username='Dan',
+                                           trip='trip2'))
         json_response = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(len(json_response['points']), 2)

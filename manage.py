@@ -104,10 +104,7 @@ def dbinit():
 @manager.command
 def deploy():
     """Run deployment tasks."""
-    from flask.ext.migrate import upgrade
-
-    # migrate database to latest revision
-    upgrade()
+    pass
 
 
 if __name__ == '__main__':

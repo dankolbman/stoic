@@ -4,7 +4,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     HOST = '0.0.0.0'
-    SSL_DISABLE = True
+    SSL_DISABLE = os.environ.get('SSL_DISABLE', False)
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     CASSANDRA_HOSTS = os.environ.get('CASSANDRA_HOSTS', 'cassandra').split(',')
     CASSANDRA_KEYSPACE = os.environ.get('CASSANDRA_KEYSPACE', 'points')

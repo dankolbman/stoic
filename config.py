@@ -26,6 +26,7 @@ class TestingConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SERVER_NAME = 'localhost'
+    SECRET_KEY = 'secret'
     CASSANDRA_HOSTS = ['127.0.0.1']
     CASSANDRA_KEYSPACE = 'test'
 

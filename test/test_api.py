@@ -1,5 +1,6 @@
 import time
 import json
+import jwt
 from random import random
 from datetime import datetime
 import unittest
@@ -44,10 +45,20 @@ class APITestCase(unittest.TestCase):
         d = [p.delete() for p in Point.objects.all()]
         self.app_context.pop()
 
-    def _api_headers(self):
+    def _api_headers(self, username='Dan'):
+        """
+        Returns headers for a json request along with a JWT for authenticating
+        as a given user
+        """
+        auth = jwt.encode({"identity": {"username": username},
+                           "nbf": 1493862425,
+                           "exp": 9999999999,
+                           "iat": 1493862425},
+                          'secret', algorithm='HS256')
         return {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'JWT ' + auth.decode('utf-8')
         }
 
     def test_status(self):
@@ -101,6 +112,28 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(response.status, '400 BAD REQUEST')
         self.assertIn('missing', json_response['message'])
         self.assertEqual(json_response['status'], 400)
+
+    def test_no_auth(self):
+        """ Test response for no JWT token """
+        headers = self._api_headers()
+        del headers['Authorization']
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='default'),
+                    headers=headers,
+                    data=json.dumps({'points': []}))
+        json_response = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(response.status, '403 FORBIDDEN')
+        self.assertEqual(json_response['status'], 403)
+
+    def test_wrong_user(self):
+        """ Test that one user cannot post to another user's points"""
+        response = self.client.post(
+                    url_for('points_points', username='Dan', trip='default'),
+                    headers=self._api_headers('Steve'),
+                    data=json.dumps({'points': []}))
+        json_response = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(response.status, '403 FORBIDDEN')
+        self.assertEqual(json_response['status'], 403)
 
     def test_pagination(self):
         """ Test pagination of points """

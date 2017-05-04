@@ -1,8 +1,9 @@
-from flask import request, jsonify
-from ..model import Point
+from flask import request, jsonify, current_app
+from flask_jwt import _jwt_required, JWTError, current_identity
 from flask_restplus import Api, Resource, Namespace, fields
 from datetime import datetime
 import dateutil.parser
+from ..model import Point
 
 
 api = Namespace('points', description='Point operations')
@@ -61,11 +62,20 @@ class Points(Resource):
 
     @api.doc(responses={200: 'no points created',
                         201: 'uploaded points',
+                        403: 'not allowed',
                         400: 'missing points list in json'})
     def post(self, username, trip):
         """
         Creates points from GeoJSON
         """
+        # check the trip belongs to the authenticated user
+        try:
+            _jwt_required(None)
+            if not current_identity['username'] == username:
+                return {'status': 403, 'message': 'not allowed'}, 403
+        except JWTError as e:
+            print(e)
+            return {'status': 403, 'message': 'not allowed'}, 403
         points = request.json
         if not points:
             return {'status': 200, 'message': 'no points created'}, 200

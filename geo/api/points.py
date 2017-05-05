@@ -128,7 +128,7 @@ class PointsCSV(Resource):
             return allowed
         # check that there is a file in the request
         if 'file' not in request.files or request.files['file'].filename == '':
-            return {'status': 400, 'message': 'no csv file'}, 400
+            return {'status': 400, 'message': 'no file'}, 400
         csvfile = request.files['file']
         # check that it is a csv file
         if not csvfile or not csvfile.filename.endswith('.csv'):

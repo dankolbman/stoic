@@ -201,3 +201,40 @@ class APITestCase(FlaskTestCase):
         json_response = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(len(json_response['points']), 2)
+
+    def test_upload_csv(self):
+        """ test uploading csv point file """
+        # test upload valid file
+        data = dict(file=(open('test/data/test_points.csv', 'rb'),
+                          "test_points.csv"))
+        response = self.client.post(
+                    url_for('points_points_csv', username='Dan', trip='trip1'),
+                    headers=self._api_headers(),
+                    content_type='multipart/form-data',
+                    data=data),
+        json_response = json.loads(response[0].data.decode('utf-8'))
+        self.assertEqual(response[0].status, '201 CREATED')
+        self.assertIn('task_id', json_response)
+
+        # test wrong file extension
+        data = dict(file=(open('test/data/test_points.csv', 'rb'),
+                          "test_points.tsv"))
+        response = self.client.post(
+                    url_for('points_points_csv', username='Dan', trip='trip1'),
+                    headers=self._api_headers(),
+                    content_type='multipart/form-data',
+                    data=data),
+        json_response = json.loads(response[0].data.decode('utf-8'))
+        self.assertEqual(response[0].status, '400 BAD REQUEST')
+        self.assertEqual(json_response['message'], 'no csv file')
+
+        # test no file
+        data = dict(file=(b'', ''),)
+        response = self.client.post(
+                    url_for('points_points_csv', username='Dan', trip='trip1'),
+                    headers=self._api_headers(),
+                    content_type='multipart/form-data',
+                    data=data),
+        json_response = json.loads(response[0].data.decode('utf-8'))
+        self.assertEqual(response[0].status, '400 BAD REQUEST')
+        self.assertEqual(json_response['message'], 'no file')

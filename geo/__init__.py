@@ -24,6 +24,8 @@ def create_app(config_name):
     config[config_name].init_app(app)
 
     db.init_app(app)
+    db.create_keyspace_simple(app.config['CASSANDRA_KEYSPACE'], 1)
+    db.sync_db()
     profiler.init_app(app)
     from .api import api
     api.init_app(app)

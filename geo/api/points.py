@@ -1,12 +1,27 @@
+import csv
 from flask import request, jsonify, current_app
 from flask_jwt import _jwt_required, JWTError, current_identity
 from flask_restplus import Api, Resource, Namespace, fields
+from werkzeug.utils import secure_filename
+from cassandra.cqlengine.query import BatchQuery
 from datetime import datetime
+from dateutil import parser
 import dateutil.parser
 from ..model import Point
 
 
 api = Namespace('points', description='Point operations')
+
+
+def belongs_to(username):
+    try:
+        _jwt_required(None)
+        if not current_identity['username'] == username:
+            return {'status': 403, 'message': 'not allowed'}, 403
+    except JWTError as e:
+        return {'status': 403, 'message': 'not allowed'}, 403
+
+    return True
 
 
 prop_model = api.model('Properties', {
@@ -69,13 +84,9 @@ class Points(Resource):
         Creates points from GeoJSON
         """
         # check the trip belongs to the authenticated user
-        try:
-            _jwt_required(None)
-            if not current_identity['username'] == username:
-                return {'status': 403, 'message': 'not allowed'}, 403
-        except JWTError as e:
-            print(e)
-            return {'status': 403, 'message': 'not allowed'}, 403
+        allowed = belongs_to(username)
+        if allowed is not True:
+            return allowed
         points = request.json
         if not points:
             return {'status': 200, 'message': 'no points created'}, 200
@@ -92,3 +103,57 @@ class Points(Resource):
 
         return {'status': 201,
                 'message': 'uploaded {} points'.format(len(points))}, 201
+
+
+@api.route('/<string:username>/<string:trip>/csv')
+class PointsCSV(Resource):
+    def get(self, username, trip):
+        """
+        Retrieve points in CSV format (not implemented yet)
+        """
+        return {'status': '404', 'message': 'not implemented'}
+
+    @api.doc(responses={200: 'no points created',
+                        201: 'uploaded csv file',
+                        403: 'not allowed',
+                        400: 'no csv file'})
+    def post(self, username, trip):
+        """
+        Uploads points to CSV for processing
+        """
+        # check the trip belongs to the authenticated user
+        allowed = belongs_to(username)
+        if allowed is not True:
+            return allowed
+        # check that there is a file in the request
+        if 'file' not in request.files or request.files['file'].filename == '':
+            return {'status': 400, 'message': 'no csv file'}, 400
+        csvfile = request.files['file']
+        # check that it is a csv file
+        if not csvfile or not csvfile.filename.endswith('.csv'):
+            return {'status': 400, 'message': 'no csv file'}, 400
+
+        filename = '_'.join([username,
+                             trip,
+                             secure_filename(csvfile.filename)])
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        csvfile.save(filepath)
+        # queue a task to process the points
+
+        return {'status': 201, 'message': 'uploaded csv file'.format(pts)}, 201
+
+    def _points_from_csv(self, csvfile, username, trip):
+        reader = csv.DictReader(csvfile.read().decode('utf-8').split('\n'))
+        i = 0
+        with BatchQuery() as b:
+            for i, line in enumerate(reader):
+                try:
+                    pt = {'coord': [line['lat'], line['lon']],
+                          'accurracy': line['accuracy'],
+                          'username': username,
+                          'created_at': parser.parse(line['time']),
+                          'trip_id': trip}
+                    Point.batch(b).create(**pt)
+                except ValueError:
+                    continue
+        return i

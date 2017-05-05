@@ -9,6 +9,15 @@ class Config:
     CASSANDRA_HOSTS = os.environ.get('CASSANDRA_HOSTS', 'cassandra').split(',')
     CASSANDRA_KEYSPACE = os.environ.get('CASSANDRA_KEYSPACE', 'points')
     CQLENG_ALLOW_SCHEMA_MANAGEMENT = False
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL',
+                                       'redis://localhost:6379/0')
+    CELERY_BACKEND = os.environ.get('CELERY_BACKEND',
+                                    'redis://localhost:6379/0')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND',
+                                           'redis://localhost:6379/0')
+    CSV_UPLOAD_DIR = os.environ.get('CSV_UPLOAD_DIR',
+                                    os.path.join(basedir, 'csv_files'))
+    MAX_CONTENT_LENGTH = 32 * 1024 * 1024
 
     @staticmethod
     def init_app(app):
@@ -16,8 +25,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    SERVER_NAME = 'localhost'
-    DEBUG = False
+    DEBUG = True
     SSL_DISABLE = True
     CASSANDRA_KEYSPACE = 'dev'
     CASSANDRA_HOSTS = ['127.0.0.1']

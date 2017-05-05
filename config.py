@@ -9,7 +9,14 @@ class Config:
     CASSANDRA_HOSTS = os.environ.get('CASSANDRA_HOSTS', 'cassandra').split(',')
     CASSANDRA_KEYSPACE = os.environ.get('CASSANDRA_KEYSPACE', 'points')
     CQLENG_ALLOW_SCHEMA_MANAGEMENT = False
-    CSV_UPLOAD_DIRECTORY = os.path.join(basedir, 'csv_files')
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL',
+                                       'redis://localhost:6379/0')
+    CELERY_BACKEND = os.environ.get('CELERY_BACKEND',
+                                    'redis://localhost:6379/0')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND',
+                                           'redis://localhost:6379/0')
+    CSV_UPLOAD_DIR = os.environ.get('CSV_UPLOAD_DIR',
+                                    os.path.join(basedir, 'csv_files'))
     MAX_CONTENT_LENGTH = 32 * 1024 * 1024
 
     @staticmethod

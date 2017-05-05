@@ -1,12 +1,13 @@
+import os
 import csv
 from flask import request, jsonify, current_app
 from flask_jwt import _jwt_required, JWTError, current_identity
 from flask_restplus import Api, Resource, Namespace, fields
-from werkzeug.utils import secure_filename
 from cassandra.cqlengine.query import BatchQuery
+from werkzeug.utils import secure_filename
 from datetime import datetime
 from dateutil import parser
-import dateutil.parser
+
 from ..model import Point
 
 
@@ -66,7 +67,7 @@ class Points(Resource):
         """
         epoch = datetime.fromtimestamp(0).isoformat()
         start = request.args.get('start', epoch, type=str)
-        start_dt = dateutil.parser.parse(start)
+        start_dt = parser.parse(start)
         size = min(request.args.get('size', 10, type=int), 1000)
         results = (Point.objects.filter(Point.username == username)
                    .filter(Point.trip_id == trip)
@@ -136,24 +137,13 @@ class PointsCSV(Resource):
         filename = '_'.join([username,
                              trip,
                              secure_filename(csvfile.filename)])
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        filepath = os.path.join(current_app.config['CSV_UPLOAD_DIR'], filename)
         csvfile.save(filepath)
         # queue a task to process the points
+        # need to import here to avoid circular dependencies
+        from ..tasks.csv import parse_csv
+        task_id = str(parse_csv.delay(filepath, username, trip))
 
-        return {'status': 201, 'message': 'uploaded csv file'.format(pts)}, 201
-
-    def _points_from_csv(self, csvfile, username, trip):
-        reader = csv.DictReader(csvfile.read().decode('utf-8').split('\n'))
-        i = 0
-        with BatchQuery() as b:
-            for i, line in enumerate(reader):
-                try:
-                    pt = {'coord': [line['lat'], line['lon']],
-                          'accurracy': line['accuracy'],
-                          'username': username,
-                          'created_at': parser.parse(line['time']),
-                          'trip_id': trip}
-                    Point.batch(b).create(**pt)
-                except ValueError:
-                    continue
-        return i
+        return {'status': 201,
+                'message': 'uploaded csv file for processing',
+                'task_id': task_id}, 201

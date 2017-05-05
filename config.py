@@ -16,6 +16,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
+    SERVER_NAME = 'localhost'
     DEBUG = False
     SSL_DISABLE = True
     CASSANDRA_KEYSPACE = 'dev'
@@ -23,6 +24,7 @@ class DevelopmentConfig(Config):
 
 
 class TestingConfig(Config):
+    SERVER_NAME = 'localhost'
     TESTING = True
     WTF_CSRF_ENABLED = False
     SECRET_KEY = 'secret'

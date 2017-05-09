@@ -11,7 +11,7 @@ from geo.model import Point
 from utils import FlaskTestCase
 
 
-class APITestCase(FlaskTestCase):
+class PointsTestCase(FlaskTestCase):
 
     def _generate_points(self, n=10, trip='trip'):
         pts = []

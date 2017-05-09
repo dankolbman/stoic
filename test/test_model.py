@@ -42,5 +42,6 @@ class ModelTestCase(FlaskTestCase):
 
         point = Point.from_json(point_json)
         self.assertEqual(point.accuracy, 15.0)
-        self.assertAlmostEqual(point.created_at.timestamp(), dt.timestamp(), 1)
+        self.assertAlmostEqual(int(point.created_at.timestamp()),
+                               int(dt.timestamp()), 1)
         self.assertEqual(Point.objects.count(), 1)

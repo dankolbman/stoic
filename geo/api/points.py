@@ -11,7 +11,7 @@ from dateutil import parser
 from ..model import Point
 
 
-api = Namespace('points', description='Point operations')
+api = Namespace('points', description='Point distribution and consumption')
 
 
 def belongs_to(username):

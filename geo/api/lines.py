@@ -68,7 +68,7 @@ class Lines(Resource):
                   .filter(Point.created_at >= start_dt)
                   .limit(size))
         lines = {
-                "type": "feature",
+                "type": "Feature",
                 "geometry": {
                     "type": "LineString",
                     "coordinates": [pt.coord for pt in points]

@@ -13,13 +13,15 @@ def parse_csv(filepath, username, trip):
     """
     Parse a csv and import to database
     """
+    import time
+    time.sleep(1)
     with open(filepath, 'r') as csvfile:
         reader = csv.DictReader(csvfile.read().split('\n'))
         i = 0
         with BatchQuery() as b:
             for i, line in enumerate(reader):
                 try:
-                    pt = {'coord': [line['lat'], line['lon']],
+                    pt = {'coord': [line['lon'], line['lat']],
                           'accurracy': line['accuracy'],
                           'username': username,
                           'created_at': parser.parse(line['time']),

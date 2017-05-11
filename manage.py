@@ -44,29 +44,21 @@ def random_points(npoints=1, tripid='test trip'):
             pt = Point.batch(b).create(accuracy=25.0,
                                        created_at=datetime.utcnow(), 
                                        trip_id=tripid,
-                                       geom=[random()*90.0,
+                                       username='Dan',
+                                       coord=[random()*90.0,
                                              random()*360.0-180.0])
             if i %100 == 0:
                 b.execute()
 
 
 @manager.option('-f', '--filepath', help='File to load points from')
-def load_points(filepath):
-    ''' Load points from file and insert into db '''
-    from datetime import datetime
-    import dateutil.parser
-    with open(filepath, 'r') as f:
-        for row in f:
-            line = row.split(',')
-            dt = dateutil.parser.parse(line[0])
-            acc = float(line[1])
-            lat = float(line[3])
-            lon = float(line[2])
-            pt = Point.create(created_at=dt,
-                       accuracy=acc,
-                       geom=[lon, lat],
-                       trip_id='asia')
-    print(Point.objects.count())
+@manager.option('-u', '--username', help='Username')
+@manager.option('-t', '--tripid', help='Trip id')
+def load_points(filepath, username='Dan', tripid='trip'):
+    """ Load points from file and insert into db """
+    from geo.tasks.csv import parse_csv
+    print(parse_csv(filepath, username, tripid).run())
+    return
 
 @manager.command
 def dbbenchmark():

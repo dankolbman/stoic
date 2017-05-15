@@ -4,6 +4,7 @@ from flask import request, jsonify, current_app
 from flask_jwt import _jwt_required, JWTError, current_identity
 from flask_restplus import Api, Resource, Namespace, fields
 from cassandra.cqlengine.query import BatchQuery
+from cassandra import InvalidRequest
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from dateutil import parser
@@ -69,12 +70,12 @@ class Points(Resource):
         start = request.args.get('start', epoch, type=str)
         start_dt = parser.parse(start)
         size = min(request.args.get('size', 10, type=int), 1000)
-        results = (Point.objects.filter(Point.username == username)
-                   .filter(Point.trip_id == trip)
-                   .filter(Point.created_at >= start_dt)
-                   .limit(size))
+        q = (Point.objects.filter(Point.username == username)
+                  .filter(Point.trip_id == trip)
+                  .filter(Point.created_at >= start_dt))
+        results = q.limit(size)
         total = Point.objects.count()
-        return {'points': [r.to_json() for r in results], 'count': total}
+        return {'points': [r.to_json() for r in results], 'count': total}, 200
 
     @api.doc(responses={200: 'no points created',
                         201: 'uploaded points',

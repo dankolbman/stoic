@@ -44,6 +44,12 @@ class LinesTestCase(FlaskTestCase):
 
     def test_lines(self):
         """ Test lines endpoint """
+        response = self.client.get(
+                    url_for('lines_lines', username='Dan', trip='trip1'),
+                    headers=self._api_headers())
+        json_response = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(len(json_response['lines']), 0)
+        self.assertEqual(json_response['count'], 0)
         # add a bunch of points
         pt_json = self._generate_points(21, trip='trip1')
         response = self.client.post(

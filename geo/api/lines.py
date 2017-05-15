@@ -63,10 +63,13 @@ class Lines(Resource):
         start = request.args.get('start', epoch, type=str)
         start_dt = parser.parse(start)
         size = min(request.args.get('size', 100, type=int), 100000)
-        points = (Point.objects.filter(Point.username == username)
+        q = (Point.objects.filter(Point.username == username)
                   .filter(Point.trip_id == trip)
-                  .filter(Point.created_at >= start_dt)
-                  .limit(size))
+                  .filter(Point.created_at >= start_dt))
+        points = q.limit(size)
+        if len(points) == 0:
+            return {'lines': [], 'count': 0}
+
         lines = {
                 "type": "Feature",
                 "geometry": {

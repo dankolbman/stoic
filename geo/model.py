@@ -50,3 +50,32 @@ class Point(db.Model):
                      username=defaults['username'],
                      created_at=dt,
                      trip_id=defaults['trip_id'])
+
+
+class Line(db.Model):
+    username = db.columns.Text(partition_key=True)
+    trip_id = db.columns.Text(partition_key=True)
+    created_at = db.columns.DateTime(primary_key=True,
+                                     default=datetime.utcnow())
+    start_at = db.columns.DateTime()
+    end_at = db.columns.DateTime()
+    coords = db.columns.List(db.columns.List(value_type=db.columns.Float))
+
+    def to_json(self):
+        """ Returns json representation of the line """
+        pt_json = {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": self.coords
+                    },
+                    "properties": {
+                        "username": self.username,
+                        "trip_id": self.trip_id,
+                        "created_at": self.created_at.isoformat(),
+                        "start_at": self.start_at.isoformat(),
+                        "end_at": self.end_at.isoformat()
+                    }
+                   }
+
+        return pt_json

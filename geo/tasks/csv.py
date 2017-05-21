@@ -14,7 +14,6 @@ def parse_csv(filepath, username, trip):
     Parse a csv and import to database
     """
     import time
-    time.sleep(1)
     with open(filepath, 'r') as csvfile:
         reader = csv.DictReader(csvfile.read().split('\n'))
         i = 0

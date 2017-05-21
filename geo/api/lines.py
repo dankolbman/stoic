@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from dateutil import parser
 
-from ..model import Point
+from ..model import Line
 
 
 api = Namespace('lines', description='Line distribution and consumption')
@@ -32,7 +32,7 @@ line_model = api.model('Line', {
         'properties': fields.Nested(prop_model)
     })
 
-paginated = api.model('PagedPoints', {
+paginated = api.model('PagedLines', {
         'lines': fields.List(fields.Nested(line_model)),
         'count': fields.Integer(description='Number of results')
     })
@@ -53,35 +53,15 @@ class Lines(Resource):
         """
         Retrieve lines in GeoJSON format
 
-        `?size` will limit the number of points in the LineString
-        `?start` will determine the time of the first point in the LineString
-
-        For now, we'll generate LineStrings from points. In the future, trip
-        LineStrings will be generated from simplified points by another task.
+        At most, there should only be one line for any given user, trip
         """
-        epoch = datetime.fromtimestamp(0).isoformat()
-        start = request.args.get('start', epoch, type=str)
-        start_dt = parser.parse(start)
-        size = min(request.args.get('size', 100, type=int), 100000)
-        q = (Point.objects.filter(Point.username == username)
-                  .filter(Point.trip_id == trip)
-                  .filter(Point.created_at >= start_dt))
-        points = q.limit(size)
-        if len(points) == 0:
+        q = (Line.objects.filter(Line.username == username)
+                         .filter(Line.trip_id == trip))
+        lines = q.limit(1)
+        if len(lines) == 0:
             return {'lines': [], 'count': 0}
 
-        lines = {
-                "type": "Feature",
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [pt.coord for pt in points]
-                },
-                "properties": {
-                    "start_at": points[0].created_at,
-                    "end_at": points[-1].created_at,
-                    "trip_id": trip,
-                    "username": username
-                }
-        }
+        lines = lines[0].to_json()
+
         # We only return the one line for now
         return {'lines': [lines], 'count': 1}

@@ -1,7 +1,7 @@
 import jwt
 import unittest
 from geo import create_app, db
-from geo.model import Point
+from geo.model import Point, Line
 
 
 class FlaskTestCase(unittest.TestCase):
@@ -13,11 +13,11 @@ class FlaskTestCase(unittest.TestCase):
 
         db.create_keyspace_simple(self.app.config['CASSANDRA_KEYSPACE'], 1)
         db.sync_db()
-        d = [p.delete() for p in Point.objects.all()]
         self.client = self.app.test_client()
 
     def tearDown(self):
         d = [p.delete() for p in Point.objects.all()]
+        d = [l.delete() for l in Line.objects.all()]
         self.app_context.pop()
 
     def _api_headers(self, username='Dan'):

@@ -14,6 +14,7 @@ def parse_csv(filepath, username, trip):
     Parse a csv and import to database
     """
     import time
+    print('RECIEVED TASK, READING CSV')
     with open(filepath, 'r') as csvfile:
         reader = csv.DictReader(csvfile.read().split('\n'))
         i = 0
@@ -28,4 +29,5 @@ def parse_csv(filepath, username, trip):
                     Point.batch(b).create(**pt)
                 except ValueError:
                     continue
+            print("SAVED {} LINES".format(i))
         return i

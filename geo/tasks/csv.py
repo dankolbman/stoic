@@ -22,6 +22,7 @@ def parse_csv(filepath, username, trip):
         reader = csv.DictReader(csvfile.read().split('\n'))
         i = 0
         with BatchQuery() as b:
+            print("I see {} points".format(Point.objects.count()))
             for i, line in enumerate(reader):
                 try:
                     pt = {'coord': [line['lon'], line['lat']],
@@ -32,6 +33,8 @@ def parse_csv(filepath, username, trip):
                     Point.batch(b).create(**pt)
                 except ValueError:
                     continue
+            print("I see {} points".format(Point.objects.count()))
             print("SAVED {} LINES".format(i))
+        print("I see {} points".format(Point.objects.count()))
         print("DONE")
         return i

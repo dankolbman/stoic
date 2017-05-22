@@ -6,7 +6,7 @@ from datetime import datetime
 from flask import current_app, url_for
 
 from geo import create_app, db
-from geo.model import Point
+from geo.model import Point, Line
 
 from utils import FlaskTestCase
 
@@ -215,6 +215,9 @@ class PointsTestCase(FlaskTestCase):
         json_response = json.loads(response[0].data.decode('utf-8'))
         self.assertEqual(response[0].status, '201 CREATED')
         self.assertIn('task_id', json_response)
+        # check that the task to insert points and line ran
+        self.assertEqual(Line.objects.count(), 1)
+        self.assertEqual(Point.objects.count(), 9)
 
         # test wrong file extension
         data = dict(file=(open('test/data/test_points.csv', 'rb'),

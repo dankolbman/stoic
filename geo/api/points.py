@@ -143,7 +143,10 @@ class PointsCSV(Resource):
         # queue a task to process the points
         # need to import here to avoid circular dependencies
         from ..tasks.csv import parse_csv
-        task_id = str(parse_csv.delay(filepath, username, trip))
+        from ..tasks.lines import line_from_points
+        chain = (parse_csv.s(filepath, username, trip) |
+                 line_from_points.s())
+        task_id = str(chain())
 
         return {'status': 201,
                 'message': 'uploaded csv file for processing',

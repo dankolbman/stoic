@@ -7,10 +7,13 @@ celery = create_celery_app()
 
 
 @celery.task()
-def line_from_points(username, trip):
+def line_from_points(u_t):
     """
     Simplifies points from a trip into a line and stores it in the backend
+
+    u_t: username, trip tuple. Often recieved from a parent task
     """
+    username, trip = u_t
     q = (Point.objects.filter(Point.username == username)
                       .filter(Point.trip_id == trip))
     points = q.all()
@@ -37,3 +40,4 @@ def line_from_points(username, trip):
                 start_at=start_at,
                 end_at=end_at)
     line.save()
+    return u_t

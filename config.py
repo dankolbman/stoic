@@ -29,6 +29,7 @@ class DevelopmentConfig(Config):
     SSL_DISABLE = True
     CASSANDRA_KEYSPACE = 'dev'
     CASSANDRA_HOSTS = ['127.0.0.1']
+    CELERY_ALWAYS_EAGER = True
 
 
 class TestingConfig(Config):
@@ -38,6 +39,7 @@ class TestingConfig(Config):
     SECRET_KEY = 'secret'
     CASSANDRA_HOSTS = ['127.0.0.1']
     CASSANDRA_KEYSPACE = 'test'
+    CELERY_ALWAYS_EAGER = True
 
 
 class ProductionConfig(Config):

@@ -36,12 +36,11 @@ class TaskTestCase(FlaskTestCase):
         """
         test that a line is properly created from a set of points
         """
-        parse_csv('test/data/test_points.csv', 'Dan', 'trip1')
-        response = self.client.get(
-                    url_for('points_points', username='Dan', trip='trip1'),
-                    headers=self._api_headers())
-        json_response = json.loads(response.data.decode('utf-8'))
-        line_from_points('Dan', 'trip1')
+        chain = (parse_csv.s('test/data/test_points.csv', 'Dan', 'trip1') |
+                 line_from_points.s())
+        chain()
+
+        self.assertEqual(Point.objects.count(), 9)
         self.assertEqual(Line.objects.count(), 1)
         line = Line.objects.limit(1)[0]
         self.assertEqual(len(line.coords), 4)

@@ -30,4 +30,4 @@ def parse_csv(filepath, username, trip):
             except ValueError:
                 continue
         b.execute()
-    return i
+    return username, trip

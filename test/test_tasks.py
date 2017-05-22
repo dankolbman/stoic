@@ -28,6 +28,7 @@ class TaskTestCase(FlaskTestCase):
                   for p in json_response['points']]
         self.assertTrue(all([int(p[0]) == -82 for p in coords]))
         self.assertTrue(all([int(p[1]) == 42 for p in coords]))
+        self.assertTrue(all([len(p) == 2 for p in coords]))
         dts = [parser.parse(p['properties']['created_at'])
                for p in json_response['points']]
         self.assertTrue(all([dt.year == 2017 and dt.month == 4 for dt in dts]))

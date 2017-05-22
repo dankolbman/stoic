@@ -16,16 +16,22 @@ def parse_csv(filepath, username, trip):
         reader = csv.DictReader(csvfile.read().split('\n'))
         i = 0
         b = BatchQuery()
+        last_dt = None
         for i, line in enumerate(reader):
             if i % 1000 == 0:
                 b.execute()
                 b = BatchQuery()
             try:
-                pt = {'coord': [line['lon'], line['lat']],
+                dt = parser.parse(line['time'])
+                if dt == last_dt:
+                    continue
+                pt = {'lon': line['lon'],
+                      'lat': line['lat'],
                       'accurracy': line['accuracy'],
                       'username': username,
-                      'created_at': parser.parse(line['time']),
+                      'created_at': dt,
                       'trip_id': trip}
+                last_dt = dt
                 Point.batch(b).create(**pt)
             except ValueError:
                 continue

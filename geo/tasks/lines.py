@@ -33,7 +33,7 @@ def line_from_points(u_t):
             coords.append(point)
     start_at = coords[0].created_at
     end_at = coords[-1].created_at
-    coords = [c.coord for c in coords]
+    coords = [[p.lon, p.lat] for p in coords]
     line = Line(username=username,
                 trip_id=trip,
                 coords=coords,

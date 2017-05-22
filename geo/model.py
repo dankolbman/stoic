@@ -13,7 +13,8 @@ class Point(db.Model):
                                      default=datetime.utcnow())
     point_id = db.columns.UUID(default=uuid.uuid4)
     accuracy = db.columns.Double(default=0.0)
-    coord = db.columns.List(value_type=db.columns.Float)
+    lon = db.columns.Float()
+    lat = db.columns.Float()
 
     def to_json(self):
         """ Returns json representation of the point """
@@ -21,7 +22,7 @@ class Point(db.Model):
                     "type": "Feature",
                     "geometry": {
                         "type": "Point",
-                        "coordinates": self.coord
+                        "coordinates": [self.lon, self.lat],
                     },
                     "properties": {
                         "username": self.username,
@@ -43,9 +44,10 @@ class Point(db.Model):
                     'trip_id': trip,
                     'username': username}
         defaults.update(point_json['properties'])
-        latlon = point_json['geometry']['coordinates']
+        lonlat = point_json['geometry']['coordinates']
         dt = dateutil.parser.parse(defaults['created_at'])
-        return Point(coord=latlon,
+        return Point(lon=lonlat[0],
+                     lat=lonlat[1],
                      accuracy=defaults['accuracy'],
                      username=defaults['username'],
                      created_at=dt,
@@ -67,7 +69,7 @@ class Line(db.Model):
                     "type": "Feature",
                     "geometry": {
                         "type": "LineString",
-                        "coordinates": self.coords
+                        "coordinates": [self.coords]
                     },
                     "properties": {
                         "username": self.username,

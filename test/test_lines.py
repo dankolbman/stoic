@@ -60,15 +60,12 @@ class LinesTestCase(FlaskTestCase):
                     url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers(),
                     data=json.dumps(pt_json))
+        line_from_points(('Dan', 'trip1'))
+        self.assertEqual(Line.objects.count(), 1)
         t = datetime.utcnow().isoformat()
-        # post a second batch of points to get different timestamps
-        pt_json = self._generate_points(5, trip='trip1')
-        response = self.client.post(
-                    url_for('points_points', username='Dan', trip='trip1'),
-                    headers=self._api_headers(),
-                    data=json.dumps(pt_json))
         # test general line properties
         response = self.client.get(
                     url_for('lines_lines', username='Dan', trip='trip1'),
                     headers=self._api_headers())
         json_response = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(json_response['count'], 1)

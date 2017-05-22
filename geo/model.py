@@ -69,7 +69,7 @@ class Line(db.Model):
                     "type": "Feature",
                     "geometry": {
                         "type": "LineString",
-                        "coordinates": [self.coords]
+                        "coordinates": self.coords
                     },
                     "properties": {
                         "username": self.username,

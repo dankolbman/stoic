@@ -20,7 +20,8 @@ class ModelTestCase(FlaskTestCase):
         point = Point.create(username='Dan',
                              created_at=dt,
                              accuracy=25.0,
-                             coord=[lat, lon],
+                             lon=lon,
+                             lat=lat,
                              trip_id='default')
         point.save()
         point = Point.objects().limit(1)[0]
@@ -33,8 +34,8 @@ class ModelTestCase(FlaskTestCase):
                          dt.isoformat()[:-4])
         self.assertEqual(js['properties']['accuracy'], 25.0)
         # Cassandra will return exact float representation
-        self.assertAlmostEqual(js['geometry']['coordinates'][0], lat, 5)
-        self.assertAlmostEqual(js['geometry']['coordinates'][1], lon, 5)
+        self.assertAlmostEqual(js['geometry']['coordinates'][0], lon, 5)
+        self.assertAlmostEqual(js['geometry']['coordinates'][1], lat, 5)
 
         point_json = {"geometry": {"coordinates": [lon, lat]},
                       "properties": {"username": "dan",

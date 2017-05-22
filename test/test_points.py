@@ -45,7 +45,8 @@ class PointsTestCase(FlaskTestCase):
     def test_points(self):
         """ Test points endpoint """
         self.assertEqual(Point.objects.count(), 0)
-        point = Point(coord=[-87.682321, 41.839344],
+        point = Point(lon=-87.682321,
+                      lat=41.839344,
                       username='Dan',
                       accuracy=10.0,
                       trip_id='default')

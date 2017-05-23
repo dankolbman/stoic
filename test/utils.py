@@ -13,6 +13,8 @@ class FlaskTestCase(unittest.TestCase):
 
         db.create_keyspace_simple(self.app.config['CASSANDRA_KEYSPACE'], 1)
         db.sync_db()
+        d = [p.delete() for p in Point.objects.all()]
+        d = [l.delete() for l in Line.objects.all()]
         self.client = self.app.test_client()
 
     def tearDown(self):

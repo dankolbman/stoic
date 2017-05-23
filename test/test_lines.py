@@ -2,11 +2,12 @@ import time
 import json
 import jwt
 from random import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import current_app, url_for
 
 from geo import create_app, db
 from geo.model import Point, Line
+from geo.tasks.csv import parse_csv
 from geo.tasks.lines import line_from_points
 
 from utils import FlaskTestCase
@@ -15,9 +16,10 @@ from utils import FlaskTestCase
 class LinesTestCase(FlaskTestCase):
 
     def _generate_points(self, n=10, trip='trip'):
+        now = datetime.utcnow()
         pts = []
         for i in range(n):
-            time.sleep(0.001)
+            now = now + timedelta(seconds=75)
             pts.append({"type": "Feature",
                         "geometry": {
                             "type": "Point",
@@ -27,7 +29,7 @@ class LinesTestCase(FlaskTestCase):
                         "properties": {
                             "username": "Dan",
                             "trip_id": trip,
-                            "created_at": datetime.utcnow().isoformat(),
+                            "created_at": now.isoformat(),
                             "accuracy": 25.0
                             }
                         })
@@ -42,9 +44,6 @@ class LinesTestCase(FlaskTestCase):
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertTrue(json_response['status'] == 200)
         self.assertTrue(json_response['version'] == '1.0')
-
-    def _put_points(self):
-        parse_csv('test/data/test_points.csv', 'Dan', 'trip1')
 
     def test_lines(self):
         """ Test lines endpoint """
@@ -69,3 +68,5 @@ class LinesTestCase(FlaskTestCase):
                     headers=self._api_headers())
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertEqual(json_response['count'], 1)
+        line = json_response['lines'][0]
+        self.assertEqual(len(line['geometry']['coordinates']), 21)

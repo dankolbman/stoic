@@ -62,7 +62,6 @@ class Lines(Resource):
             return {'lines': [], 'count': 0}
 
         lines = lines[0].to_json()
-        print(lines)
 
         # We only return the one line for now
         return {'lines': [lines], 'count': 1}

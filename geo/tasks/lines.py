@@ -16,17 +16,20 @@ def line_from_points(u_t):
     username, trip = u_t
     q = (Point.objects.filter(Point.username == username)
                       .filter(Point.trip_id == trip))
-    points = q.all()
+    points = q.limit(None)
     if len(points) == 0:
         return {'line': {}}
-
+    # this format resolves down to minutes, thus downsampling any finer points
+    tfmt = "%Y-%m-%d%H:%M"
     coords = []
     for point in points:
         if coords == []:
             coords.append(point)
             continue
 
-        if point.created_at.minute == coords[-1].created_at.minute:
+        t1 = point.created_at.strftime(tfmt)
+        t2 = coords[-1].created_at.strftime(tfmt)
+        if t1 == t2:
             if point.accuracy < coords[-1].accuracy:
                 coords[-1] = point
         else:

@@ -1,6 +1,7 @@
 from flask_restplus import Api
 from .points import api as lines_api
 from .lines import api as points_api
+from .interp import api as interp_api
 
 api = Api(
     title='Geo',
@@ -10,3 +11,4 @@ api = Api(
 
 api.add_namespace(points_api)
 api.add_namespace(lines_api)
+api.add_namespace(interp_api)

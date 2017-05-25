@@ -43,8 +43,9 @@ def line_from_points(u_t):
             d = d_approx((point.lon, point.lat),
                          (coords[-1].lon, coords[-1].lat))
             v = d / (point.created_at - coords[-1].created_at).total_seconds()
-            # Only use points averaging > 5 km/hr
-            if (v*3600.0) > 5.0:
+            # Only use points averaging > 0.1 km/hr
+            # and net displacement of 0.5 km
+            if (v*3600.0) > 0.1 and d > 0.5:
                 coords.append(point)
     start_at = coords[0].created_at
     end_at = coords[-1].created_at

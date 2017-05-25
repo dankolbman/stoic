@@ -17,12 +17,12 @@ class TaskTestCase(FlaskTestCase):
         test that csv is parsed and points are inserted to database
         """
         parse_csv('test/data/test_points.csv', 'Dan', 'trip1')
-        self.assertEqual(Point.objects.count(), 9)
+        self.assertEqual(Point.objects.count(), 11)
         response = self.client.get(
                     url_for('points_points', username='Dan', trip='trip1'),
                     headers=self._api_headers())
         json_response = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(json_response['count'], 9)
+        self.assertEqual(json_response['count'], 11)
 
         coords = [p['geometry']['coordinates']
                   for p in json_response['points']]
@@ -41,10 +41,10 @@ class TaskTestCase(FlaskTestCase):
                  line_from_points.s())
         chain()
 
-        self.assertEqual(Point.objects.count(), 9)
+        self.assertEqual(Point.objects.count(), 11)
         self.assertEqual(Line.objects.count(), 1)
         line = Line.objects.limit(1)[0]
-        self.assertEqual(len(line.coords), 4)
+        self.assertEqual(len(line.coords), 3)
         line_json = line.to_json()
         geom = line_json['geometry']
         self.assertEqual(geom['type'], 'LineString')
@@ -52,4 +52,4 @@ class TaskTestCase(FlaskTestCase):
         self.assertEqual(props['username'], 'Dan')
         self.assertEqual(props['trip_id'], 'trip1')
         self.assertIn('2017-04-29T05:00:16', props['start_at'])
-        self.assertIn('2017-04-29T05:08:04', props['end_at'])
+        self.assertIn('2017-04-29T05:12:25', props['end_at'])

@@ -218,7 +218,7 @@ class PointsTestCase(FlaskTestCase):
         self.assertIn('task_id', json_response)
         # check that the task to insert points and line ran
         self.assertEqual(Line.objects.count(), 1)
-        self.assertEqual(Point.objects.count(), 9)
+        self.assertEqual(Point.objects.count(), 11)
 
         # test wrong file extension
         data = dict(file=(open('test/data/test_points.csv', 'rb'),

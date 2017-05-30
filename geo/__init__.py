@@ -1,5 +1,6 @@
 import os
-from flask import Flask
+import subprocess
+from flask import Flask, jsonify
 from flask_profile import Profiler
 from flask_cqlalchemy import CQLAlchemy
 from flask_restplus import Api
@@ -59,8 +60,12 @@ def create_app(config_name):
     api.init_app(app)
     jwt = JWT(app, authenticate, identity)
 
-    if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
-        from flask_sslify import SSLify
-        sslify = SSLify(app)
+    @app.route('/status')
+    def status():
+        return jsonify({
+            "version": (subprocess.check_output(
+                        ['git', 'rev-parse', '--short', 'HEAD'])
+                        .decode('utf-8').strip()),
+            "status": 200})
 
     return app

@@ -45,6 +45,11 @@ class LinesTestCase(FlaskTestCase):
         self.assertTrue(json_response['status'] == 200)
         self.assertTrue(json_response['version'] == '1.0')
 
+        response = self.client.get(url_for('status'))
+        json_response = json.loads(response.data.decode('utf-8'))
+        self.assertTrue(json_response['status'] == 200)
+        self.assertEqual(len(json_response['version']), 7)
+
     def test_lines(self):
         """ Test lines endpoint """
         response = self.client.get(

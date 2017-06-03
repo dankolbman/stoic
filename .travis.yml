@@ -1,5 +1,6 @@
 services:
   - redis-server
+  - docker
 language: python
 python:
   - "3.5"
@@ -25,5 +26,9 @@ script:
   - py.test --pep8 geo
   - py.test -v --cov=geo --cov-report term-missing --pep8 test
 after_success:
-  coveralls
-
+  - coveralls
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker build -t kolbman.xyz:3333/geo .;
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" $DOCKER_REGISTRY;
+    docker push kolbman.xyz:3333/geo;
+    fi
